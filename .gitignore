@@ -1,0 +1,73 @@
+# Compiled Python files
+*.pyc
+*.pyo
+__pycache__
+
+# Compiled C extension files
+*.so
+
+# Distribution directories
+dist/
+build/
+*.egg-info/
+
+# Python Virtual Environment
+venv/
+env/
+*.env
+pip-selfcheck.json
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Local development configuration
+local_settings.py
+
+# macOS-specific files
+.DS_Store
+
+# Editor/IDE specific files
+.idea/
+.vscode/
+
+# Compiled files for Cython
+*.c
+*.cpp
+*.html
+*.pyd
+*.pyi
+
+# Logs and other temporary files
+*.log
+*.tmp
+*.tmp.*
+*.bak
+*.swp
+
+# Ignore credentials and sensitive data (customize as needed)
+credentials.ini
+secrets.json
+
+# Ignore dependencies (e.g., created by Poetry, pipenv, etc.)
+# Uncomment if using a dependency management tool like Poetry, pipenv, etc.
+# poetry.lock
+# Pipfile.lock
+# Pipfile
+# pyproject.toml
+
+# Ignore virtual environments for Anaconda
+# Uncomment if using Anaconda/Miniconda environments
+# .conda/
+# .condarc
+
+# Ignore conda environment YAML files
+# Uncomment if using conda to manage environments
+# environment.yml
+# environment.yaml
+
+# Custom ignore patterns (add any additional patterns as needed)
+# example_pattern/
+# another_pattern/
+
+
+

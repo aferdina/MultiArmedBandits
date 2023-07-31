@@ -211,13 +211,13 @@ class BoltzmannConstant(BaseModel):
         canonical_parameter = self.temperature * self.values
         input_vector = np.exp(canonical_parameter)
         probs = (input_vector / np.sum(input_vector)).tolist()
-        x = np.random.rand()
+        unif_distr = np.random.rand()
         cum = 0
-        for i, p in enumerate(probs):
-            cum += p
-            if x < cum:
+        for position, probability in enumerate(probs):
+            cum += probability
+            if unif_distr < cum:
                 break
-        return i
+        return position
         # return np.random.choice(self.n_arms, p=input_vector)
 
 
@@ -432,6 +432,7 @@ class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
         )
 
     def __str__(self) -> str:
+        """return string representation from class"""
         return "UCBGumbel"
 
 

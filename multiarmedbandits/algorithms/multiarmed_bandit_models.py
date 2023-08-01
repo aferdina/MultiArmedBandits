@@ -220,6 +220,7 @@ class BoltzmannConstant(BaseModel):
         probs = (input_vector / np.sum(input_vector)).tolist()
         unif_distr = np.random.rand()
         cum = 0
+        position: int = 0  # fallback variable for return
         for position, probability in enumerate(probs):
             cum += probability
             if unif_distr < cum:

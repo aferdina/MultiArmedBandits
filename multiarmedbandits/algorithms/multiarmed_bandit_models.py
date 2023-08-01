@@ -14,6 +14,13 @@ from multiarmedbandits.utils import (
 
 
 @dataclass
+class ArmAttributes:
+    """class to store all attributes for select arm method"""
+
+    step_in_game: int | None = None
+
+
+@dataclass
 class BaseModel(ABC):
     """create a basemodel class for multiarmed bandit models"""
 
@@ -30,7 +37,7 @@ class BaseModel(ABC):
         self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
 
     @abstractmethod
-    def select_arm(self, *args, **kwargs) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None) -> int:
         """select arm given the specific multiarmed bandit algorithm
 
         Returns:
@@ -92,7 +99,7 @@ class EpsilonGreedy(BaseModel):
         ), f"{epsilon} should be a float between 0 and 1"
         self.epsilon = epsilon
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select the best arm by using epsilon gready method
 
         Returns:
@@ -116,18 +123,18 @@ class ExploreThenCommit(BaseModel):
         super().__init__(n_arms=n_arms)
         self.explore = explore
 
-    def select_arm(self, count: int) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes) -> int:
         """select the best arm given the estimators of the values
 
         Args:
-            count (int): step in the game
+            arm_attrib (ArmAttributes): step in the game
 
         Returns:
             int: best action based on the estimators of the values
         """
-        if self.explore * self.n_arms < count:
+        if self.explore * self.n_arms < arm_attrib.step_in_game:
             return np.argmax(self.values)
-        return count % self.n_arms
+        return arm_attrib.step_in_game % self.n_arms
 
 
 class UCB(BaseModel):
@@ -147,7 +154,7 @@ class UCB(BaseModel):
         self.delta = delta
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select the best arm given the value estimators and the ucb bound
         Returns:
             int: best action based on upper confidence bound
@@ -202,7 +209,7 @@ class BoltzmannConstant(BaseModel):
         ), "The temperature  has to be a positive float"
         self.temperature = temperature
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """choose an arm from the boltzmann distribution
 
         Returns:
@@ -218,7 +225,6 @@ class BoltzmannConstant(BaseModel):
             if unif_distr < cum:
                 break
         return position
-        # return np.random.choice(self.n_arms, p=input_vector)
 
 
 class BoltzmannGumbel(BoltzmannConstant):
@@ -233,7 +239,7 @@ class BoltzmannGumbel(BoltzmannConstant):
         """
         super().__init__(temperature=temperature, n_arms=n_arms)
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select action with respect to gumbel trick
 
         Returns:
@@ -262,7 +268,7 @@ class BoltzmannGumbelRightWay(BaseModel):
 
         self.some_constant = some_constant
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """get action from boltzmann gumbel paper"""
 
         gumbel_rvs = np.random.gumbel(loc=0.0, scale=1.0, size=self.n_arms)
@@ -301,10 +307,10 @@ class BoltzmannGumbelRandomVariable(BaseModel):
             size=(max_steps, n_arms)
         )
 
-    def select_arm(self, step_in_game: int) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes) -> int:
         """get action from boltzmann gumbel paper"""
 
-        random_variables = self.random_variable[step_in_game,]
+        random_variables = self.random_variable[arm_attrib.step_in_game,]
         betas = self.calculate_beta()
         betas = np.nan_to_num(betas, nan=np.inf)
         used_parameter = self.values + betas * random_variables
@@ -477,7 +483,7 @@ class GradientBandit(BaseModel):
         input_vector = np.exp(self.values)
         return float(input_vector[action] / np.sum(input_vector))
 
-    def select_arm(self) -> int:
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """choose arm in the gradient bandit algorithmus
 
         Returns:

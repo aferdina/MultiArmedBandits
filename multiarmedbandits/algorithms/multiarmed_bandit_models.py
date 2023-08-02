@@ -44,6 +44,14 @@ class BaseModel(ABC):
             int: arm to play
         """
 
+    def __str__(self) -> str:
+        """return name of class as string representation
+
+        Returns:
+            str: _description_
+        """
+        return self.__class__.__name__
+
     def update(self, chosen_arm: int, reward: float) -> None:
         """update the value estimators and counts based on the new observed
          reward and played action
@@ -278,7 +286,6 @@ class BoltzmannGumbelRightWay(BaseModel):
         return np.argmax(used_parameter)
 
 
-@dataclass
 class BoltzmannGumbelRandomVariable(BaseModel):
     """abstract class for boltzmann gumbel classes with using costum random variables"""
 
@@ -330,7 +337,6 @@ class BoltzmannGumbelRandomVariable(BaseModel):
         return self.some_constant**2
 
 
-@dataclass
 class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
@@ -363,7 +369,6 @@ class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
         return "SqrtGumbel"
 
 
-@dataclass
 class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
@@ -404,7 +409,6 @@ class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
         return "LogGumbel"
 
 
-@dataclass
 class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
@@ -443,7 +447,6 @@ class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
         return "UCBGumbel"
 
 
-@dataclass
 class RandomGumbels(Enum):
     """enum class for different gumbel methods"""
 
@@ -453,7 +456,6 @@ class RandomGumbels(Enum):
     CONSTANTGUMBEL = BoltzmannGumbelRandomVariable
 
 
-@dataclass
 class GradientBandit(BaseModel):
     """gradient bandit algorithm"""
 
@@ -524,7 +526,6 @@ class GradientBandit(BaseModel):
         self.mean_reward = 0.0
 
 
-@dataclass
 class GradientBanditnobaseline(GradientBandit):
     """gradient bandit algorithm"""
 

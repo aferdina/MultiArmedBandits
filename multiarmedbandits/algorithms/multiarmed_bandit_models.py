@@ -10,14 +10,8 @@ from multiarmedbandits.utils import (
     is_float_between_0_and_1,
     is_positive_integer,
     is_positive_float,
+    ArmAttributes
 )
-
-
-@dataclass
-class ArmAttributes:
-    """class to store all attributes for select arm method"""
-
-    step_in_game: int | None = None
 
 
 @dataclass

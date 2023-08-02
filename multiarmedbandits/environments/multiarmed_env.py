@@ -9,6 +9,7 @@ from multiarmedbandits.utils import (
     is_list_of_positive_floats,
     is_positive_integer,
     check_floats_between_zero_and_one,
+    ArmAttributes,
 )
 
 
@@ -17,6 +18,7 @@ class INFODICT(StrEnum):
 
     STEPCOUNT = "count"
     REGRET = "regret"
+    ARMATTRIBUTES = "arm_attributes"
 
 
 @dataclass
@@ -100,6 +102,7 @@ class BaseBanditEnv(ABC):
             {
                 INFODICT.REGRET: self.bandit_statistics.regret,
                 INFODICT.STEPCOUNT: self.count,
+                INFODICT.ARMATTRIBUTES: ArmAttributes(step_in_game=self.count),
             },
         )
 
@@ -108,6 +111,19 @@ class BaseBanditEnv(ABC):
         self.count = 0
         self.done = False
         self.bandit_statistics.reset_statistics()
+        next_step = 0
+        reward = 0
+        done = False
+        return (
+            next_step,
+            reward,
+            done,
+            {
+                INFODICT.REGRET: 0,
+                INFODICT.STEPCOUNT: self.count,
+                INFODICT.ARMATTRIBUTES: ArmAttributes(step_in_game=self.count),
+            },
+        )
 
     @abstractmethod
     def get_reward(self, action: int) -> float:

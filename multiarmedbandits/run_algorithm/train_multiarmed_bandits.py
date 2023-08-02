@@ -31,7 +31,11 @@ class RunMultiarmedBanditModel:
         Args:
             metrics_to_plot (List[MetricNames]): List of metric names which should be plotted
         """
-        plot_statistics(self.metrics, metrics_to_plot=metrics_to_plot)
+        plot_statistics(
+            metrics=self.metrics,
+            metrics_to_plot=metrics_to_plot,
+            title=f"{str(self.mab_algo)}",
+        )
 
     def update_metrics(self, metrics_to_update: MABMetrics) -> None:
         """update metrics for a multiarmed bandit model

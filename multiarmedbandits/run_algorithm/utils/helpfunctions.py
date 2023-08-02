@@ -12,8 +12,9 @@ class MetricNames(StrEnum):
     """enum class for metric names"""
 
     REGRET = "regret"
-    OPTIM_PERC = "optimality_percentage"
-    CUMULATIVE_REWARD = "cumulative_reward"
+    OPTIMALITIES = "optimalities"
+    OPTIM_PERCENTAGE = "optim_percentage"
+    CUMULATIVE_REWARD = "cum_reward"
     EXPLORATION_EXPLOITATION = "exploration_exploitation_tradeoff"
     AVERAGE_REWARD = "average_reward"
     REGRETCONVERGENCE = "regret_convergence"
@@ -33,12 +34,18 @@ class MABMetrics:
     regret_convergence: np.ndarray | None = None
 
     def __post_init__(self) -> None:
-        self.regret = np.zeros(self.horizon)
-        self.optimalities = np.zeros(self.horizon)
-        self.optim_percentage = np.zeros(self.horizon)
-        self.cum_reward = np.zeros(self.horizon)
-        self.average_reward = np.zeros(self.horizon)
-        self.regret_convergence = np.zeros(self.horizon)
+        if self.regret is None:
+            self.regret = np.zeros(self.horizon)
+        if self.optimalities is None:
+            self.optimalities = np.zeros(self.horizon)
+        if self.optim_percentage is None:
+            self.optim_percentage = np.zeros(self.horizon)
+        if self.cum_reward is None:
+            self.cum_reward = np.zeros(self.horizon)
+        if self.average_reward is None:
+            self.average_reward = np.zeros(self.horizon)
+        if self.regret_convergence is None:
+            self.regret_convergence = np.zeros(self.horizon)
 
     def __add__(self, other: "MABMetrics") -> "MABMetrics":
         """add to metrics together by calculating new average
@@ -61,13 +68,13 @@ class MABMetrics:
             raise ValueError("Horizon must be the same")
         new_no_runs = self.no_runs + other.no_runs
         new_metric = MABMetrics(horizon=self.horizon, no_runs=new_no_runs)
-        for attr_name, attr_value in vars(other):
-            if attr_name in ["horizon", "no_runs"]:
-                pass
-            new_value = (
-                other.no_runs * attr_value + getattr(self, attr_name) * self.no_runs
-            ) / new_no_runs
-            setattr(new_metric, attr_name, new_value)
+        for attr_name, attr_value in vars(other).items():
+            if not attr_name in ["horizon", "no_runs"]:
+                new_value = (
+                    other.no_runs * attr_value + getattr(self, attr_name) * self.no_runs
+                ) / new_no_runs
+                setattr(new_metric, attr_name, new_value)
+        return new_metric
 
 
 def plot_statistics(
@@ -82,23 +89,31 @@ def plot_statistics(
     no_of_metrics = len(metrics_to_plot)
     _rows_square, rows = next_square(number=no_of_metrics)
     cols = rows if rows * (rows - 1) < no_of_metrics else rows - 1
-    _fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
-    plt.title(title)
+    fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
+    fig.suptitle(title, fontsize=16)
     pos = 0
     index_array = np.arange(metrics.horizon)
-    for row in range(rows):
-        for col in range(cols):
-            if pos > no_of_metrics:
-                break
-            axis = axs[row, col]
-            axis.plot(
-                index_array,
-                getattr(metrics, metrics_to_plot[pos]),
+    if axs.ndim == 1:
+        for row in range(rows):
+            axs[row].plot(
+                index_array, getattr(metrics, metrics_to_plot[pos]), color="red"
             )
-            axis.set_title(f"{metrics_to_plot[pos]}")
+            axs[row].set_title(f"{metrics_to_plot[pos]}")
             pos += 1
+        plt.show()
+    else:
+        for row in range(rows):
+            for col in range(cols):
+                if pos < no_of_metrics:
+                    axis = axs[row, col]
+                    axis.plot(
+                        index_array,
+                        getattr(metrics, metrics_to_plot[pos]),
+                    )
+                    axis.set_title(f"{metrics_to_plot[pos]}")
+                    pos += 1
 
-    plt.show()
+        plt.show()
 
 
 def next_square(number: int) -> Tuple[int, int]:

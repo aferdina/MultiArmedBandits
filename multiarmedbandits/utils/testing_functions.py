@@ -109,4 +109,5 @@ __all__ = [
     is_positive_integer.__name__,
     check_floats_between_zero_and_one.__name__,
     is_list_of_positive_floats.__name__,
+    is_positive_float.__name__,
 ]

@@ -18,7 +18,7 @@ class RunMultiarmedBanditModel:
         self.mab_algo = mab_algo
         self.bandit_env = bandit_env
         self.metrics: MABMetrics = MABMetrics(horizon=bandit_env.max_steps)
-        self.total_runs = 0
+        self.total_runs: int = 0
 
     def reset_statistics(self) -> None:
         """reset statistics for running a mulitarmed bandit model on a given environment"""

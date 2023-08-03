@@ -10,21 +10,23 @@ from multiarmedbandits.utils import (
     is_float_between_0_and_1,
     is_positive_integer,
     is_positive_float,
-    ArmAttributes
+    ArmAttributes,
 )
+from multiarmedbandits.environments.multiarmed_env import BaseBanditEnv
 
 
 @dataclass
 class BaseModel(ABC):
     """create a basemodel class for multiarmed bandit models"""
 
-    def __init__(self, n_arms: int) -> None:
+    def __init__(self, bandit_env: BaseBanditEnv) -> None:
         """initialize epsilon greedy algorithm
 
         Args:
             epsilon (float): epsilon parameter for the epsilon greedy algorithm
             n_arms (int): number of possible arms
         """
+        n_arms = bandit_env.n_arms
         assert is_positive_integer(n_arms), f"{n_arms} should be a positive integer"
         self.n_arms = n_arms
         self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
@@ -88,14 +90,14 @@ class BaseModel(ABC):
 class EpsilonGreedy(BaseModel):
     """class for epsilon greedy algorithm"""
 
-    def __init__(self, epsilon: float, n_arms: int) -> None:
+    def __init__(self, epsilon: float, bandit_env: BaseBanditEnv) -> None:
         """initialize epsilon greedy algorithm
 
         Args:
             epsilon (float): epsilon parameter for the epsilon greedy algorithm
             n_arms (int): number of possible arms
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         assert is_float_between_0_and_1(
             epsilon
         ), f"{epsilon} should be a float between 0 and 1"
@@ -115,14 +117,14 @@ class EpsilonGreedy(BaseModel):
 class ExploreThenCommit(BaseModel):
     """explore then commit algorithm"""
 
-    def __init__(self, explore: int, n_arms: int) -> None:
+    def __init__(self, explore: int, bandit_env: BaseBanditEnv) -> None:
         """initialize explore then commit algorithm
 
         Args:
             explore (int): number of steps to explore each arm
             n_arms (int): number of arms in the multi arm bandit
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         self.explore = explore
 
     def select_arm(self, arm_attrib: ArmAttributes) -> int:
@@ -142,14 +144,14 @@ class ExploreThenCommit(BaseModel):
 class UCB(BaseModel):
     """class for ucb algorithm"""
 
-    def __init__(self, delta: float, n_arms: int) -> None:
+    def __init__(self, delta: float, bandit_env: BaseBanditEnv) -> None:
         """initialize upper confidence bound algorithm
 
         Args:
             n_arms (int): number of arms in the multiarmed bandit model
             delta (float): delta parameter of ucb algorithm
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         assert is_float_between_0_and_1(
             delta
         ), f"{delta} should be a float between 0 and 1"
@@ -197,14 +199,14 @@ class UCB(BaseModel):
 class BoltzmannConstant(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, temperature: float, n_arms: int):
+    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
         """initialize boltzmann algorithm with constant temperature
 
         Args:
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         # init tests
         assert is_positive_float(
             temperature
@@ -233,14 +235,14 @@ class BoltzmannConstant(BaseModel):
 class BoltzmannGumbel(BoltzmannConstant):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, temperature, n_arms):
+    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
         """initialize boltzmann algorithm with constant temperature
 
         Args:
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(temperature=temperature, n_arms=n_arms)
+        super().__init__(temperature=temperature, bandit_env=bandit_env)
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select action with respect to gumbel trick
@@ -256,14 +258,14 @@ class BoltzmannGumbel(BoltzmannConstant):
 class BoltzmannGumbelRightWay(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, some_constant: float, n_arms: int) -> None:
+    def __init__(self, some_constant: float, bandit_env: BaseBanditEnv) -> None:
         """initialize boltzmann algorithm with constant temperature
 
         Args:
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         # init tests
         assert is_positive_float(
             some_constant
@@ -285,9 +287,8 @@ class BoltzmannGumbelRandomVariable(BaseModel):
 
     def __init__(
         self,
-        n_arms: int,
+        bandit_env: BaseBanditEnv,
         some_constant: float,
-        max_steps: int,
         randomvariable_dict: dict,
     ) -> None:
         """initialize boltzmann algorithm with constant temperature
@@ -296,7 +297,7 @@ class BoltzmannGumbelRandomVariable(BaseModel):
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         # init tests
         assert is_positive_float(
             some_constant
@@ -306,7 +307,7 @@ class BoltzmannGumbelRandomVariable(BaseModel):
         self.some_constant = some_constant
         _dist = getattr(stats, randomvariable_dict["name"])
         self.random_variable = _dist(**randomvariable_dict["parameter"]).rvs(
-            size=(max_steps, n_arms)
+            size=(bandit_env.max_steps, bandit_env.n_arms)
         )
 
     def select_arm(self, arm_attrib: ArmAttributes) -> int:
@@ -318,9 +319,6 @@ class BoltzmannGumbelRandomVariable(BaseModel):
         used_parameter = self.values + betas * random_variables
 
         return int(np.argmax(used_parameter))
-
-    def __str__(self) -> str:
-        return "ConstantGumbel"
 
     def calculate_beta(self) -> np.float32:
         """calculate beta value for constant gumbel
@@ -336,9 +334,8 @@ class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
 
     def __init__(
         self,
-        n_arms: int,
+        bandit_env: BaseBanditEnv,
         some_constant: float,
-        max_steps: int,
         randomvariable_dict: dict,
     ):
         """initialize boltzmann algorithm with constant temperature
@@ -348,9 +345,8 @@ class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
             n_arms (int): number of used arms
         """
         super().__init__(
-            n_arms=n_arms,
             some_constant=some_constant,
-            max_steps=max_steps,
+            bandit_env=bandit_env,
             randomvariable_dict=randomvariable_dict,
         )
 
@@ -358,19 +354,14 @@ class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
         """calculate beta value for given steps"""
         return self.some_constant * np.sum(self.counts) ** (-0.5)
 
-    def __str__(self) -> str:
-        """get string representation from class"""
-        return "SqrtGumbel"
-
 
 class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
     def __init__(
         self,
-        n_arms: int,
+        bandit_env: BaseBanditEnv,
         some_constant: float,
-        max_steps: int,
         randomvariable_dict: dict,
     ):
         """initialize boltzmann algorithm with constant temperature
@@ -380,9 +371,8 @@ class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
             n_arms (int): number of used arms
         """
         super().__init__(
-            n_arms=n_arms,
+            bandit_env=bandit_env,
             some_constant=some_constant,
-            max_steps=max_steps,
             randomvariable_dict=randomvariable_dict,
         )
 
@@ -394,23 +384,14 @@ class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
         """
         return self.some_constant**2 * (np.log(np.sum(self.counts)) ** -1)
 
-    def __str__(self) -> str:
-        """get string representation of class
-
-        Returns:
-            _type_: _description_
-        """
-        return "LogGumbel"
-
 
 class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
     def __init__(
         self,
-        n_arms: int,
+        bandit_env: BaseBanditEnv,
         some_constant: float,
-        max_steps: int,
         randomvariable_dict: dict,
     ) -> None:
         """initialize boltzmann algorithm with constant temperature
@@ -420,9 +401,8 @@ class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
             n_arms (int): number of used arms
         """
         super().__init__(
-            n_arms=n_arms,
             some_constant=some_constant,
-            max_steps=max_steps,
+            bandit_env=bandit_env,
             randomvariable_dict=randomvariable_dict,
         )
 
@@ -436,9 +416,6 @@ class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
             (np.log(np.sum(self.counts))) * self.counts**-1
         )
 
-    def __str__(self) -> str:
-        """return string representation from class"""
-        return "UCBGumbel"
 
 
 class RandomGumbels(Enum):
@@ -453,14 +430,14 @@ class RandomGumbels(Enum):
 class GradientBandit(BaseModel):
     """gradient bandit algorithm"""
 
-    def __init__(self, alpha: float, n_arms: int) -> None:
+    def __init__(self, alpha: float, bandit_env: BaseBanditEnv) -> None:
         """initialize gradient bandit with learning rate `alpha` and `n_arms`
 
         Args:
             alpha (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(n_arms=n_arms)
+        super().__init__(bandit_env=bandit_env)
         # init tests
         assert is_positive_float(alpha), "Learning rate has to be a positive float"
 
@@ -523,14 +500,14 @@ class GradientBandit(BaseModel):
 class GradientBanditnobaseline(GradientBandit):
     """gradient bandit algorithm"""
 
-    def __init__(self, alpha: float, n_arms: int) -> None:
+    def __init__(self, alpha: float, bandit_env: BaseBanditEnv) -> None:
         """initialize gradient bandit with learning rate `alpha` and `n_arms`
 
         Args:
             alpha (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(alpha=alpha, n_arms=n_arms)
+        super().__init__(alpha=alpha, bandit_env=bandit_env)
 
     def update(self, chosen_arm: int, reward: float) -> None:
         """update the value estimators and counts based on the new observed

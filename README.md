@@ -46,8 +46,6 @@ in your working directory.
 
 #TODO: writing tests
 #TODO: adapt functionalities from repo
-#TODO: implement testbed
 #TODO: implement gabenv
 #TODO: save data from experiments
 #TODO create interface for adding experiments
-#TODO: write REAMDME

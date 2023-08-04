@@ -329,6 +329,7 @@ class BoltzmannGumbelRandomVariable(BaseModel):
         return self.some_constant**2
 
 
+# TODO: boltzmann random variable change
 class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
@@ -415,16 +416,6 @@ class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
         return self.some_constant * np.sqrt(
             (np.log(np.sum(self.counts))) * self.counts**-1
         )
-
-
-
-class RandomGumbels(Enum):
-    """enum class for different gumbel methods"""
-
-    UCBGUMBEL = BoltzmannGumbelRandomVariableUCB
-    LOGGUMBEL = BoltzmannGumbelRandomVariableLog
-    SQRTGUMBEL = BoltzmannGumbelRandomVariableSqrt
-    CONSTANTGUMBEL = BoltzmannGumbelRandomVariable
 
 
 class GradientBandit(BaseModel):
@@ -526,3 +517,14 @@ class GradientBanditnobaseline(GradientBandit):
 
         # update values
         self.values = self.values + gradients
+
+
+__all__ = [
+    GradientBanditnobaseline.__name__,
+    GradientBandit.__name__,
+    UCB.__name__,
+    ExploreThenCommit.__name__,
+    EpsilonGreedy.__name__,
+    BaseModel.__name__,
+    BoltzmannConstant.__name__,
+]

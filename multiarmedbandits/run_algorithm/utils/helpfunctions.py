@@ -131,4 +131,9 @@ def next_square(number: int) -> Tuple[int, int]:
     return next_square_number, next_integer
 
 
-__all__ = [MetricNames.__name__, MABMetrics.__name__, plot_statistics.__name__]
+__all__ = [
+    MetricNames.__name__,
+    MABMetrics.__name__,
+    plot_statistics.__name__,
+    next_square.__name__,
+]

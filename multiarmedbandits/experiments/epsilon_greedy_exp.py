@@ -5,7 +5,10 @@ from dataclasses import dataclass
 from typing import List
 from enum import Enum
 from multiarmedbandits.environments import BaseBanditEnv
-from multiarmedbandits.algorithms.multiarmed_bandit_models import EpsilonGreedy
+from multiarmedbandits.algorithms.multiarmed_bandit_models import (
+    EpsilonGreedy,
+    BaseModel,
+)
 from multiarmedbandits.run_algorithm.train_multiarmed_bandits import (
     RunMultiarmedBanditModel,
 )
@@ -41,7 +44,7 @@ class MultiArmedBanditModel:
 class NamedMABMetrics:
     """metrics for a multiarmed bandit model including the algorithm with parameters"""
 
-    algorithm: Algorithms
+    algorithm: MultiArmedBanditModel
     metrics: MABMetrics
 
 
@@ -49,16 +52,53 @@ class CompareMultiArmedBandits:
     """compare multiable multiarmed bandit models"""
 
     def __init__(
-        self, test_env: BaseBanditEnv, mab_algorithm: List[MultiArmedBanditModel]
+        self, test_env: BaseBanditEnv, mab_algorithms: List[MultiArmedBanditModel]
     ):
         self.mab_env = test_env
-        self.mab_algorithm = mab_algorithm
+        self.mab_algorithms = mab_algorithms
 
-    def train_all_models(self) -> List[NamedMABMetrics]:
+    def train_all_models(self, no_of_runs: int) -> List[NamedMABMetrics]:
+        """train all models on environment
+
+        Args:
+            no_of_runs (int): number of runs to train all algorithms
+
+        Returns:
+            List[NamedMABMetrics]: List with named metrics to plot
+        """
+        named_mabs_metrics = []
+        for mab_algorithms in self.mab_algorithms:
+            mab_algo_instance = self.get_mab_algo(
+                test_env=self.mab_env, mab_algo=mab_algorithms
+            )
+            train_algo = RunMultiarmedBanditModel(
+                mab_algo=mab_algo_instance, bandit_env=self.mab_env
+            )
+            named_metrics = NamedMABMetrics(
+                algorithm=mab_algorithms,
+                metrics=train_algo.get_metrics_from_runs(no_of_runs=no_of_runs),
+            )
+            named_mabs_metrics.append(named_metrics)
+        return named_mabs_metrics
+
+    def plot_multiple_mabs(
+        self, metrics: List[NamedMABMetrics], metrics_to_plot: List[MetricNames]
+    ):
         pass
 
-    def plot_multiple_mabs(self, metrics_to_plot: List[MetricNames]):
-        pass
+    def get_mab_algo(
+        self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel
+    ) -> BaseModel:
+        """create instance of mab algorithm from multi armed bandit model and algo configs
+
+        Args:
+            test_env (BaseBanditEnv): bandit model to use
+            mab_algo (MultiArmedBanditModel): configs from multi armed algorithm
+
+        Returns:
+            BaseModel: instance of mab algorithm
+        """
+        return mab_algo.dist_type.value(bandit_env=test_env, **mab_algo.dist_params)
 
 
 def epsilon_greedy_exp(max_steps, n_arms, used_epsilons, num_games, printed):

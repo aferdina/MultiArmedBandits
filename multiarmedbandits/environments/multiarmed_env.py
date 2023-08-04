@@ -236,6 +236,11 @@ class TestBed(BaseBanditEnv):
 __all__ = [
     DistParameter.__name__,
     TestBed.__name__,
+    BaseBanditEnv.__name__,
+    ArmDistTypes.__name__,
+    DistParameter.__name__,
+    TestBedConfigs.__name__,
+    BanditStatistics.__name__,
 ]
 
 if __name__ == "__main__":

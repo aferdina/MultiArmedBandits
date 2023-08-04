@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from multiarmedbandits.run_algorithm.utils import (
     plot_statistics,
+    next_square,
     MetricNames,
     MABMetrics,
 )
@@ -84,7 +85,41 @@ class CompareMultiArmedBandits:
     def plot_multiple_mabs(
         self, metrics: List[NamedMABMetrics], metrics_to_plot: List[MetricNames]
     ):
-        pass
+        """plot metrics from running multiarmed agent module
+
+        Args:
+            metrics (MABMetrics): metrics to plot
+            metrics_to_plot (list[MetricNames]): list of keys to plot
+        """
+        no_of_metrics = len(metrics_to_plot)
+        _rows_square, rows = next_square(number=no_of_metrics)
+        cols = rows if rows * (rows - 1) < no_of_metrics else rows - 1
+        fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
+        fig.suptitle("Comparision", fontsize=16)
+        pos = 0
+        index_array = np.arange(metrics[0].metrics.horizon)
+        if axs.ndim == 1:
+            for row in range(rows):
+                # add multiple plots
+                axs[row].plot(
+                    index_array, getattr(metrics, metrics_to_plot[pos]), color="red"
+                )
+                axs[row].set_title(f"{metrics_to_plot[pos]}")
+                pos += 1
+            plt.show()
+        else:
+            for row in range(rows):
+                for col in range(cols):
+                    if pos < no_of_metrics:
+                        axis = axs[row, col]
+                        axis.plot(
+                            index_array,
+                            getattr(metrics, metrics_to_plot[pos]),
+                        )
+                        axis.set_title(f"{metrics_to_plot[pos]}")
+                        pos += 1
+
+            plt.show()
 
     def get_mab_algo(
         self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel

@@ -12,6 +12,7 @@ strenum = "^0.4.15"
 ipykernel = "^6.25.0"
 scipy = "^1.11.1"
 matplotlib = "^3.7.2"
+pytest-lazy-fixture = "^0.6.3"
 
 
 [tool.poetry.group.dev.dependencies]

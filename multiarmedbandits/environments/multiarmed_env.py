@@ -240,33 +240,7 @@ __all__ = [
     ArmDistTypes.__name__,
     DistParameter.__name__,
     TestBedConfigs.__name__,
+    TestBedSampleType.__name__,
     BanditStatistics.__name__,
     INFODICT.__name__,
 ]
-
-if __name__ == "__main__":
-    bernoulli_env = BaseBanditEnv(
-        distr_params=DistParameter(
-            dist_type=ArmDistTypes.GAUSSIAN,
-            mean_parameter=[0.1, 0.2],
-            scale_parameter=[1.0, 1.0],
-        ),
-        max_steps=10,
-    )
-    testbed_env = TestBed(
-        max_steps=10,
-        testbed_config=TestBedConfigs(
-            type=TestBedSampleType.BERNOULLI,
-            sample_config={"n": 1, "p": 0.4},
-            no_arms=5,
-            arm_type=ArmDistTypes.BERNOULLI,
-        ),
-    )
-
-    for play_action in range(5):
-        _, get_reward, _, _ = testbed_env.step(play_action)
-        print("Arm", play_action, "gave a reward of:", get_reward)
-        print(
-            f"optimal action was {testbed_env.bandit_statistics.played_optimal} times played"
-        )
-        print(f"the new regret is {testbed_env.bandit_statistics.regret}")

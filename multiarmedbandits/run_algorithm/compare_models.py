@@ -19,11 +19,6 @@ from multiarmedbandits.run_algorithm.utils import (
 )
 import multiarmedbandits.algorithms.multiarmed_bandit_models as bandit_algos
 
-MAX_STEPS = 1000
-N_ARMS = 10
-USED_EPSILONS = [0.1, 0.2, 0.5]
-NUM_GAMES = 3000
-
 
 class RunMultiarmedBanditModel:
     """run algorithm for mab on an environment"""
@@ -208,12 +203,12 @@ class CompareMultiArmedBandits:
                     if pos < no_of_metrics:
                         axis = axs[row, col]
                         for named_metric in named_metrics:
-                            axs[row].plot(
+                            axis.plot(
                                 index_array,
                                 getattr(named_metric.metrics, metrics_to_plot[pos]),
                                 label=f"{named_metric.algorithm.dist_type}:{named_metric.algorithm.dist_params}",
                             )
-                            axs[row].legend()
+                            axis.legend()
                             axis.set_title(f"{metrics_to_plot[pos]}")
                         pos += 1
 
@@ -235,11 +230,11 @@ class CompareMultiArmedBandits:
 
 
 __all__ = [
-    RunMultiarmedBanditModel.__all__,
-    Algorithms.__all__,
-    MultiArmedBanditModel.__all__,
-    NamedMABMetrics.__all__,
-    CompareMultiArmedBandits.__all__,
+    RunMultiarmedBanditModel.__name__,
+    Algorithms.__name__,
+    MultiArmedBanditModel.__name__,
+    NamedMABMetrics.__name__,
+    CompareMultiArmedBandits.__name__,
 ]
 
 if __name__ == "__main__":

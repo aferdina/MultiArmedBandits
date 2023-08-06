@@ -2,7 +2,6 @@
 """
 import random
 from dataclasses import dataclass
-from enum import Enum
 from abc import ABC, abstractmethod
 import numpy as np
 from scipy import stats
@@ -12,7 +11,7 @@ from multiarmedbandits.utils import (
     is_positive_float,
     ArmAttributes,
 )
-from multiarmedbandits.environments.multiarmed_env import BaseBanditEnv
+from multiarmedbandits.environments import BaseBanditEnv
 
 
 @dataclass

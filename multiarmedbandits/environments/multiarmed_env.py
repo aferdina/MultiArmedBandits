@@ -241,6 +241,7 @@ __all__ = [
     DistParameter.__name__,
     TestBedConfigs.__name__,
     BanditStatistics.__name__,
+    INFODICT.__name__,
 ]
 
 if __name__ == "__main__":

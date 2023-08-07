@@ -13,7 +13,7 @@ def test_bernoulli_env_init(env: BaseBanditEnv) -> None:
     assert isinstance(env.max_steps, int), "max steps should be an integer"
     assert env.max_steps == 10
     # testing bandit statistics
-    assert env.bandit_statistics.max_mean == 0.2
+    assert env.bandit_statistics.max_mean == 0.7
     assert env.bandit_statistics.regret == 0
     assert env.bandit_statistics.max_mean_positions == [
         1,
@@ -34,7 +34,7 @@ def test_bernoulli_env_init(env: BaseBanditEnv) -> None:
     # testing bandit statistics again after step
     assert env.count == 0, "env count after resetting should be equal to 0"
     assert env.done == False, "env done init as False"
-    assert env.bandit_statistics.max_mean == 0.2
+    assert env.bandit_statistics.max_mean == 0.7
     assert env.bandit_statistics.regret == 0
     assert env.bandit_statistics.max_mean_positions == [
         1,

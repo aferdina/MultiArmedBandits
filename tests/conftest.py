@@ -15,6 +15,16 @@ def bernoulli_env() -> mab_envs.BaseBanditEnv:
         max_steps=10,
     )
 
+@pytest.fixture(scope="module")
+def bernoulli_env() -> mab_envs.BaseBanditEnv:
+    return mab_envs.BaseBanditEnv(
+        distr_params=mab_envs.DistParameter(
+            dist_type=mab_envs.ArmDistTypes.BERNOULLI,
+            mean_parameter=[0.1, 0.7],
+        ),
+        max_steps=10,
+    )
+
 
 @pytest.fixture(scope="module")
 def testbed_env() -> mab_envs.BaseBanditEnv:

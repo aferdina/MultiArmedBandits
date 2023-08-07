@@ -241,27 +241,41 @@ class BoltzmannSimple(BaseModel):
         self.logits = self.values * self.temperature
 
 
+@dataclass
+class BoltzmannConfigs:
+    loss_type: str
+
+
 class BoltzmannGeneral(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
+    def __init__(self, boltzmannconfigs: BoltzmannConfigs, bandit_env: BaseBanditEnv):
         """initialize boltzmann algorithm with constant temperature
 
         Args:
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(temperature=temperature, bandit_env=bandit_env)
+        super().__init__(bandit_env=bandit_env)
+        self.betas = np.zeros(self.n_arms, dtype=np.float32)
 
-    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
-        """select action with respect to gumbel trick
+    def select_arm(self, arm_attrib: ArmAttributes) -> int:
+        """get action from boltzmann gumbel paper"""
 
-        Returns:
-            int: returned action
-        """
-        _parameter = self.temperature * self.values
-        gumbel_rvs = np.random.gumbel(loc=0, scale=1, size=self.n_arms)
-        return np.argmax(_parameter + gumbel_rvs)
+        random_variables = self.random_variable[arm_attrib.step_in_game,]
+        betas = self.calculate_beta()
+        betas = np.nan_to_num(betas, nan=np.inf)
+        used_parameter = self.values + betas * random_variables
+
+        return int(np.argmax(used_parameter))
+
+    def sample_random_variables(self) -> np.ndarray:
+        return np.random.gumbel(loc=0.0, scale=1.0, size=self.n_arms)
+
+    def _create_sample_method(
+        self,
+    ) -> None:
+        """create random variable sample method"""
 
 
 class BoltzmannGumbelRightWay(BaseModel):

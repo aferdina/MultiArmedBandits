@@ -96,15 +96,17 @@ class BaseBanditEnv:
             },
         )
 
-    def reset(self) -> None:
-        """reset all statistics to run a new game"""
+    def reset(self) -> Tuple[int, dict[str, Any]]:
+        """reset all statistics to run a new game
+
+        Returns:
+            Tuple[int, dict[str, Any]]: state and information dictionary
+        """
         self.count = 0
         self.done = False
         self.bandit_statistics.reset_statistics()
         return (
             0,
-            0,
-            False,
             {
                 INFODICT.REGRET: 0,
                 INFODICT.STEPCOUNT: self.count,

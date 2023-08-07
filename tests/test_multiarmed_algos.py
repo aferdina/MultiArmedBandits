@@ -29,3 +29,22 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: EpsilonGreedy) -> None:
     assert not np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
 
     # test update method
+    algo.reset()
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    reward = 1.0
+    action = 1
+
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 1], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 1.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 2], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 4.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 3], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 2.0], dtype=np.float32))

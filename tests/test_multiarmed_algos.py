@@ -48,3 +48,9 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: EpsilonGreedy) -> None:
     algo.update(chosen_arm=action, reward=reward)
     assert np.array_equal(algo.counts, np.array([0, 3], dtype=np.float32))
     assert np.array_equal(algo.values, np.array([0, 2.0], dtype=np.float32))
+
+    # test select arm method
+    selected_arms = [algo.select_arm(info[INFODICT.ARMATTRIBUTES]) for _ in range(int(1e5))]
+    # probability zero, that only one arm is selected
+    assert 0 in selected_arms
+    assert 1 in selected_arms

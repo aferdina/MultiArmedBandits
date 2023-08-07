@@ -9,6 +9,7 @@ from multiarmedbandits.utils import (
     is_float_between_0_and_1,
     is_positive_integer,
     is_positive_float,
+    is_list_of_floats,
 )
 from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
 
@@ -194,10 +195,10 @@ class UCB(BaseModel):
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
 
 
-class BoltzmannConstant(BaseModel):
+class BoltzmannSimple(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
+    def __init__(self, temperature: list[float], bandit_env: BaseBanditEnv):
         """initialize boltzmann algorithm with constant temperature
 
         Args:
@@ -206,10 +207,14 @@ class BoltzmannConstant(BaseModel):
         """
         super().__init__(bandit_env=bandit_env)
         # init tests
-        assert is_positive_float(
+        assert is_list_of_floats(
             temperature
         ), "The temperature  has to be a positive float"
-        self.temperature = temperature
+        assert (
+            len(temperature) == self.n_arms
+        ), "temperature parameter should be of same size as number of arms"
+        self.temperature = np.array(temperature, dtype=np.float32)
+        self.logits: np.ndarray = self.values * self.temperature
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """choose an arm from the boltzmann distribution
@@ -217,20 +222,26 @@ class BoltzmannConstant(BaseModel):
         Returns:
             int: simulated action
         """
-        canonical_parameter = self.temperature * self.values
-        input_vector = np.exp(canonical_parameter)
-        probs = (input_vector / np.sum(input_vector)).tolist()
-        unif_distr = np.random.rand()
-        cum = 0
-        position: int = 0  # fallback variable for return
-        for position, probability in enumerate(probs):
-            cum += probability
-            if unif_distr < cum:
-                break
-        return position
+        probs = np.exp(self.logits) / np.sum(np.exp(self.logits))
+        return np.random.choice(self.n_arms, p=probs)
+
+    def update(self, chosen_arm: int, reward: float) -> None:
+        """update method by adapting logits
+
+        Args:
+            chosen_arm (int): chosen arm
+            reward (float): reward from choosing specific arm
+        """
+        super().update(chosen_arm=chosen_arm, reward=reward)
+        self.logits = self.values * self.temperature
+
+    def reset(self) -> None:
+        """adapt reset method by resetting logits"""
+        super().reset()
+        self.logits = self.values * self.temperature
 
 
-class BoltzmannGumbel(BoltzmannConstant):
+class BoltzmannGeneral(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
     def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
@@ -327,7 +338,6 @@ class BoltzmannGumbelRandomVariable(BaseModel):
         return self.some_constant**2
 
 
-# TODO: boltzmann random variable change
 class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
@@ -524,5 +534,5 @@ __all__ = [
     ExploreThenCommit.__name__,
     EpsilonGreedy.__name__,
     BaseModel.__name__,
-    BoltzmannConstant.__name__,
+    BoltzmannSimple.__name__,
 ]

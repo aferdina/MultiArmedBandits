@@ -15,6 +15,7 @@ def bernoulli_env() -> mab_envs.BaseBanditEnv:
         max_steps=10,
     )
 
+
 @pytest.fixture(scope="module")
 def bernoulli_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.BaseBanditEnv(
@@ -36,6 +37,22 @@ def testbed_env() -> mab_envs.BaseBanditEnv:
             no_arms=5,
             arm_type=mab_envs.ArmDistTypes.BERNOULLI,
         ),
+    )
+
+
+@pytest.fixture(scope="module")
+def gap_env() -> mab_envs.GapEnv:
+    return mab_envs.GapEnv(
+        gap_configs=mab_envs.GapEnvConfigs(
+            no_of_arms=10,
+            single_arm_distr=mab_envs.SingleArmParams(
+                arm_type=mab_envs.ArmDistTypes.GAUSSIAN,
+                mean_parameter=0.4,
+                scale_parameter=1.0,
+            ),
+            gap_parameter=0.2,
+        ),
+        max_steps=10,
     )
 
 

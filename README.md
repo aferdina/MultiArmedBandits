@@ -8,7 +8,6 @@
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
-- [TODOS](#todos)
 
 ## Description
 
@@ -41,11 +40,3 @@ in your working directory.
 ## Contributing
 
 ## License
-
-## TODOS
-
-#TODO: writing tests
-#TODO: adapt functionalities from repo
-#TODO: implement gabenv
-#TODO: save data from experiments
-#TODO create interface for adding experiments

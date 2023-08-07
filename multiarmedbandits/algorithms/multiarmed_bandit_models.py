@@ -9,9 +9,8 @@ from multiarmedbandits.utils import (
     is_float_between_0_and_1,
     is_positive_integer,
     is_positive_float,
-    ArmAttributes,
 )
-from multiarmedbandits.environments import BaseBanditEnv
+from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
 
 
 @dataclass

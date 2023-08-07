@@ -7,12 +7,13 @@ import numpy as np
 from multiarmedbandits.utils import (
     is_positive_integer,
 )
-from .utils import (
+from multiarmedbandits.environments.utils import (
     ArmAttributes,
     BanditStatistics,
     DistParameter,
     ArmDistTypes,
     INFODICT,
+    GapEnvConfigs,
 )
 
 
@@ -27,7 +28,6 @@ class BaseBanditEnv:
             for arms of multiarm bandit
             max_steps (int): maximal number of steps to play in the multi arm bandit
         """
-        # TODO: write test file for mab configs
         assert is_positive_integer(
             max_steps
         ), "The number of steps should be a positive integer"
@@ -202,9 +202,17 @@ class TestBed(BaseBanditEnv):
         ]
 
 
+class GapEnv(BaseBanditEnv):
+    """class for Gap enviroment from paper `Boltzmann exploration done right`"""
+
+    def __init__(self, gap_configs: GapEnvConfigs, max_steps: int) -> None:
+        super().__init__(distr_params=gap_configs.distr_parameter, max_steps=max_steps)
+
+
 __all__ = [
     TestBed.__name__,
     BaseBanditEnv.__name__,
     TestBedConfigs.__name__,
     TestBedSampleType.__name__,
+    GapEnv.__name__,
 ]

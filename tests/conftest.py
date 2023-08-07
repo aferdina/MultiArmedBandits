@@ -1,6 +1,7 @@
 import pytest
 
 import multiarmedbandits.environments as mab_envs
+import multiarmedbandits.algorithms as mab_algos
 
 
 @pytest.fixture(scope="module")
@@ -26,3 +27,8 @@ def testbed_env() -> mab_envs.BaseBanditEnv:
             arm_type=mab_envs.ArmDistTypes.BERNOULLI,
         ),
     )
+
+
+@pytest.fixture(scope="module")
+def epsilon_greedy(bernoulli_env) -> mab_algos.EpsilonGreedy:
+    return mab_algos.EpsilonGreedy(epsilon=0.1, bandit_env=bernoulli_env)

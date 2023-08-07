@@ -1,52 +1,19 @@
 """ Include all game environments for multi armed bandits
 """
 from dataclasses import dataclass
-from typing import Dict, Tuple, Any, Callable, List
+from typing import Dict, Tuple, Any, Callable
 from strenum import StrEnum
 import numpy as np
 from multiarmedbandits.utils import (
     is_positive_integer,
-    ArmAttributes,
 )
-
-
-class INFODICT(StrEnum):
-    """Enum class for infromation dictionary"""
-
-    STEPCOUNT = "count"
-    REGRET = "regret"
-    ARMATTRIBUTES = "arm_attributes"
-
-
-class ArmDistTypes(StrEnum):
-    """types of arm distributions"""
-
-    GAUSSIAN = "gaussian"
-    BERNOULLI = "bernoulli"
-
-
-@dataclass
-class DistParameter:
-    """distribution parameter for arms in multiarmed bandit problems"""
-
-    dist_type: ArmDistTypes
-    mean_parameter: list[float]
-    scale_parameter: list[float] | None = None
-
-
-@dataclass
-class BanditStatistics:
-    """statistics for bandit models"""
-
-    max_mean: float  # maximal mean
-    max_mean_positions: List[int]  # position of the maximal mean
-    played_optimal: int = 0  # count number of times optimal played
-    regret: float = 0.0  # calculate regret
-
-    def reset_statistics(self) -> None:
-        """reset statistics"""
-        self.played_optimal = 0
-        self.regret = 0.0
+from .utils import (
+    ArmAttributes,
+    BanditStatistics,
+    DistParameter,
+    ArmDistTypes,
+    INFODICT,
+)
 
 
 class BaseBanditEnv:
@@ -234,13 +201,8 @@ class TestBed(BaseBanditEnv):
 
 
 __all__ = [
-    DistParameter.__name__,
     TestBed.__name__,
     BaseBanditEnv.__name__,
-    ArmDistTypes.__name__,
-    DistParameter.__name__,
     TestBedConfigs.__name__,
     TestBedSampleType.__name__,
-    BanditStatistics.__name__,
-    INFODICT.__name__,
 ]

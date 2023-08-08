@@ -1,6 +1,7 @@
 """ module contains all algorithms for multiarm bandit problems
 """
 import random
+from typing import Any
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import numpy as np
@@ -26,8 +27,11 @@ class BaseModel(ABC):
             n_arms (int): number of possible arms
         """
         n_arms = bandit_env.n_arms
+        max_steps = bandit_env.max_steps
         assert is_positive_integer(n_arms), f"{n_arms} should be a positive integer"
+        assert is_positive_integer(max_steps), f"{n_arms} should be a positive integer"
         self.n_arms = n_arms
+        self.max_steps = max_steps
         self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
         self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
 
@@ -242,8 +246,18 @@ class BoltzmannSimple(BaseModel):
 
 
 @dataclass
+class RandomVariable:
+    rv_name: str
+    rv_param: dict[str, Any]
+
+    def __post_init__(self):
+        assert self.rv_name in dir(stats)
+
+
+@dataclass
 class BoltzmannConfigs:
     loss_type: str
+    random_variable: RandomVariable
 
 
 class BoltzmannGeneral(BaseModel):
@@ -257,25 +271,39 @@ class BoltzmannGeneral(BaseModel):
             n_arms (int): number of used arms
         """
         super().__init__(bandit_env=bandit_env)
+        self.boltzmann_configs = boltzmannconfigs
         self.betas = np.zeros(self.n_arms, dtype=np.float32)
+        self.random_variables = self.sample_random_variables()
 
     def select_arm(self, arm_attrib: ArmAttributes) -> int:
         """get action from boltzmann gumbel paper"""
 
-        random_variables = self.random_variable[arm_attrib.step_in_game,]
-        betas = self.calculate_beta()
-        betas = np.nan_to_num(betas, nan=np.inf)
-        used_parameter = self.values + betas * random_variables
-
-        return int(np.argmax(used_parameter))
+        random_variables = self.random_variables[arm_attrib.step_in_game,]
+        _betas = self.calculate_betas(arm_attrib=arm_attrib)
+        _used_parameter = self.values + _betas * random_variables
+        return int(np.argmax(_used_parameter))
 
     def sample_random_variables(self) -> np.ndarray:
-        return np.random.gumbel(loc=0.0, scale=1.0, size=self.n_arms)
+        """get realization of random variables for algorithm
 
-    def _create_sample_method(
-        self,
-    ) -> None:
-        """create random variable sample method"""
+        Returns:
+            np.ndarray: all required random variables
+        """
+        _dist = getattr(stats, self.boltzmann_configs.random_variable.rv_name)
+        return _dist(**self.boltzmann_configs.random_variable.rv_param).rvs(
+            size=(self.max_steps, self.n_arms)
+        )
+
+    # TODO: calculate beta function is depending on configurations
+    def calculate_betas(self, arm_attrib: ArmAttributes) -> np.ndarray:
+        """calculating beta values for boltzmann algorithm
+
+        Args:
+            arm_attrib (ArmAttributes): parameter for calculating beta values
+
+        Returns:
+            np.ndarray: beta values for algorithm
+        """
 
 
 class BoltzmannGumbelRightWay(BaseModel):

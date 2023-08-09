@@ -189,8 +189,8 @@ class TestBed(BaseBanditEnv):
             scale_parameter=scale_parameter,
         )
 
-    def reset(self) -> None:
-        super().reset()
+    def reset(self) -> Tuple[int, dict[str, Any]]:
+        _state, info = super().reset()
         self.distr_params = self.get_distr_from_testbed()
         self._create_reward_function()
         mean_parameter = self.distr_params.mean_parameter
@@ -200,6 +200,7 @@ class TestBed(BaseBanditEnv):
             for index, value in enumerate(mean_parameter)
             if value == self.bandit_statistics.max_mean
         ]
+        return _state, info
 
 
 class GapEnv(BaseBanditEnv):

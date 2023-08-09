@@ -218,7 +218,7 @@ class BoltzmannSimple(BaseModel):
         assert (
             len(boltzmann_configs.some_constant) == self.n_arms
         ), "temperature parameter should be of same size as number of arms"
-        self.some_constant = boltzmann_configs.some_constant
+        self.some_constant = np.array(boltzmann_configs.some_constant, dtype=np.float32)
         setattr(
             self,
             "calc_betas",
@@ -262,27 +262,55 @@ class BoltzmannSimple(BaseModel):
             def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
                 return self.some_constant**2
 
+            return _calc_betas
+
         if explor_type == ExplorationType.SQRT:
 
             def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                return self.some_constant**2 / np.sqrt(arm_attrib.step_in_game)
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.sqrt(1 + arm_attrib.step_in_game)
+
+            return _calc_betas
 
         if explor_type == ExplorationType.LOG:
 
             def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                return self.some_constant**2 / np.log(arm_attrib.step_in_game)
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.log(1 + arm_attrib.step_in_game)
 
-        if explor_type == ExplorationType.LOG:
+            return _calc_betas
+        if explor_type == ExplorationType.UCB:
 
             def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                return self.some_constant**2 / np.log(arm_attrib.step_in_game)
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result = result * np.log(1 + arm_attrib.step_in_game)
+                result[result == 0.0] = np.inf
+                return result
 
+            return _calc_betas
         if explor_type == ExplorationType.BGE:
 
             def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
-                return self.some_constant / np.sqrt(self.counts)
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result[result == 0.0] = np.inf
+                return result
 
-        return _calc_betas
+            return _calc_betas
+        raise NotImplementedError(f"{explor_type} not implemented yet")
 
 
 @dataclass

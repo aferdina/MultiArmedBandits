@@ -161,6 +161,9 @@ class UCB(BaseModel):
         ), f"{delta} should be a float between 0 and 1"
         self.delta = delta
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
+        self._exploration_factor = np.sqrt(-2 * np.log(self.delta)) * np.ones(
+            self.n_arms, dtype=np.float32
+        )
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select the best arm given the value estimators and the ucb bound
@@ -176,27 +179,21 @@ class UCB(BaseModel):
             chosen_arm (int): action which was played an should be updated
             reward (float): reward of the multiarmed bandit, based on playing action `chosen_arm`
         """
-        self.counts[chosen_arm] = self.counts[chosen_arm] + 1
-        times_played_chosen_arm = self.counts[chosen_arm]
-        value = self.values[chosen_arm]
-        new_value = (
-            (times_played_chosen_arm - 1) / times_played_chosen_arm
-        ) * value + (1 / times_played_chosen_arm) * reward
-        self.values[chosen_arm] = new_value
+        super().update(chosen_arm=chosen_arm, reward=reward)
         # update all arms which are played at least one time
         # # pylint: disable=C0301
-        for arm in [
-            arm_index
-            for arm_index, already_played in enumerate(self.counts)
-            if already_played != 0
-        ]:
-            bonus = np.sqrt((2 * np.log(1 / self.delta)) / self.counts[arm])
-            self.ucb_values[arm] = self.values[arm] + bonus
+        _square_counts = np.sqrt(self.counts)
+        bonus = np.divide(
+            self._exploration_factor,
+            _square_counts,
+            out=np.full(self.n_arms, np.inf, dtype=np.float32),
+            where=_square_counts != 0,
+        )
+        self.ucb_values = self.values + bonus
 
     def reset(self) -> None:
         """reset agent by resetting all required statistics"""
-        self.counts = np.zeros(self.n_arms, dtype=np.float32)
-        self.values = np.zeros(self.n_arms, dtype=np.float32)
+        super().reset()
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
 
 

@@ -22,4 +22,25 @@ class BoltzmannConfigs:
     some_constant: list[float]
 
 
-__all__ = [ExplorationType.__name__, BoltzmannConfigs.__name__]
+class BaseLinesTypes(StrEnum):
+    ZERO = "zero"
+    MEAN = "mean"
+
+
+@dataclass
+class GradientBaseLineAttr:
+    type: BaseLinesTypes
+    mean_reward: float = 0.0
+    step_count: int = 0
+
+    def reset(self):
+        self.mean_reward = 0.0
+        self.step_count = 0
+
+
+__all__ = [
+    ExplorationType.__name__,
+    BoltzmannConfigs.__name__,
+    BaseLinesTypes.__name__,
+    GradientBaseLineAttr.__name__,
+]

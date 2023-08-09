@@ -13,7 +13,12 @@ from multiarmedbandits.utils import (
     is_list_of_floats,
 )
 from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
-from multiarmedbandits.algorithms.utils import ExplorationType, BoltzmannConfigs
+from multiarmedbandits.algorithms.utils import (
+    ExplorationType,
+    BoltzmannConfigs,
+    BaseLinesTypes,
+    GradientBaseLineAttr,
+)
 
 
 @dataclass
@@ -360,7 +365,12 @@ class BoltzmannGeneral(BoltzmannSimple):
 class GradientBandit(BaseModel):
     """gradient bandit algorithm"""
 
-    def __init__(self, alpha: float, bandit_env: BaseBanditEnv) -> None:
+    def __init__(
+        self,
+        alpha: float,
+        baseline_attr: GradientBaseLineAttr,
+        bandit_env: BaseBanditEnv,
+    ) -> None:
         """initialize gradient bandit with learning rate `alpha` and `n_arms`
 
         Args:
@@ -372,8 +382,45 @@ class GradientBandit(BaseModel):
         assert is_positive_float(alpha), "Learning rate has to be a positive float"
 
         self.alpha: float = alpha
-        self.count: int = 0
-        self.mean_reward: float = 0.0
+        setattr(
+            self,
+            "calc_baseline",
+            self._create_calc_baseline(baseline_typ=baseline_attr.type),
+        )
+        self.baseline_attr = baseline_attr
+
+    def _create_calc_baseline(
+        self, baseline_typ: BaseLinesTypes
+    ) -> Callable[[GradientBaseLineAttr], float]:
+        """create baseline function for given baseline type
+
+        Args:
+            baseline_typ (BaseLinesTypes): _description_
+        """
+        if baseline_typ == BaseLinesTypes.ZERO:
+
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                return 0.0
+
+            return _calc_baseline
+        if baseline_typ == BaseLinesTypes.MEAN:
+
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                return baseline_att.mean_reward
+
+            return _calc_baseline
+        raise ValueError("method not implemented")
+
+    def calc_baseline(self, baseline_att: GradientBaseLineAttr) -> float:
+        """calculate baseline for gradient algorithm
+
+        Args:
+            baseline_att (GradientBaseLineAttr): attributes to calculate baseline
+
+        Returns:
+            float: calculated baseline
+        """
+        return 0.0
 
     def get_prob(self, action: int) -> float:
         """get probability for a given action
@@ -410,56 +457,26 @@ class GradientBandit(BaseModel):
         action_prob_vec = np.array([-1 * action_prob for _ in range(self.n_arms)])
         action_prob_vec[chosen_arm] = 1 - action_prob
         # update via memory trick
-        gradients = (self.alpha * (reward - self.mean_reward)) * action_prob_vec
+        baseline = self.calc_baseline(baseline_att=self.baseline_attr)
+        gradients = (self.alpha * (reward - baseline)) * action_prob_vec
 
         # update values
         self.values = self.values + gradients
-        self.count += 1
+        self.baseline_attr.step_count += 1
         # update mean reward
-        self.mean_reward = ((self.count - 1) / float(self.count)) * self.mean_reward + (
-            1 / float(self.count)
+        self.baseline_attr.mean_reward = (
+            (self.baseline_attr.step_count - 1) / float(self.baseline_attr.step_count)
+        ) * self.baseline_attr.mean_reward + (
+            1 / float(self.baseline_attr.step_count)
         ) * reward
 
     def reset(self) -> None:
         """reset agent by resetting all required statistics"""
-        self.count = 0
         self.values = np.zeros(self.n_arms, dtype=np.float32)
-        self.mean_reward = 0.0
-
-
-class GradientBanditnobaseline(GradientBandit):
-    """gradient bandit algorithm"""
-
-    def __init__(self, alpha: float, bandit_env: BaseBanditEnv) -> None:
-        """initialize gradient bandit with learning rate `alpha` and `n_arms`
-
-        Args:
-            alpha (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(alpha=alpha, bandit_env=bandit_env)
-
-    def update(self, chosen_arm: int, reward: float) -> None:
-        """update the value estimators and counts based on the new observed
-         reward and played action
-
-        Args:
-            chosen_arm (int): action which was played
-            reward (float): reward of the multiarmed bandit, based on playing action `chosen_arm`
-        """
-        action_prob = self.get_prob(chosen_arm)
-        # increment the chosen arm
-        action_prob_vec = np.array([-1 * action_prob for _ in range(self.n_arms)])
-        action_prob_vec[chosen_arm] = 1 - action_prob
-        # update via memory trick
-        gradients = (self.alpha * (reward)) * action_prob_vec
-
-        # update values
-        self.values = self.values + gradients
+        self.baseline_attr.reset()
 
 
 __all__ = [
-    GradientBanditnobaseline.__name__,
     GradientBandit.__name__,
     UCB.__name__,
     ExploreThenCommit.__name__,

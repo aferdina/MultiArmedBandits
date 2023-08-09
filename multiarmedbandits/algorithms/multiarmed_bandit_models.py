@@ -1,6 +1,7 @@
 """ module contains all algorithms for multiarm bandit problems
 """
 import random
+from typing import Any, Callable
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import numpy as np
@@ -9,8 +10,10 @@ from multiarmedbandits.utils import (
     is_float_between_0_and_1,
     is_positive_integer,
     is_positive_float,
+    is_list_of_floats,
 )
 from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
+from multiarmedbandits.algorithms.utils import ExplorationType, BoltzmannConfigs
 
 
 @dataclass
@@ -25,8 +28,11 @@ class BaseModel(ABC):
             n_arms (int): number of possible arms
         """
         n_arms = bandit_env.n_arms
+        max_steps = bandit_env.max_steps
         assert is_positive_integer(n_arms), f"{n_arms} should be a positive integer"
+        assert is_positive_integer(max_steps), f"{n_arms} should be a positive integer"
         self.n_arms = n_arms
+        self.max_steps = max_steps
         self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
         self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
 
@@ -194,10 +200,10 @@ class UCB(BaseModel):
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
 
 
-class BoltzmannConstant(BaseModel):
+class BoltzmannSimple(BaseModel):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
-    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
+    def __init__(self, boltzmann_configs: BoltzmannConfigs, bandit_env: BaseBanditEnv):
         """initialize boltzmann algorithm with constant temperature
 
         Args:
@@ -206,10 +212,18 @@ class BoltzmannConstant(BaseModel):
         """
         super().__init__(bandit_env=bandit_env)
         # init tests
-        assert is_positive_float(
-            temperature
+        assert is_list_of_floats(
+            boltzmann_configs.some_constant
         ), "The temperature  has to be a positive float"
-        self.temperature = temperature
+        assert (
+            len(boltzmann_configs.some_constant) == self.n_arms
+        ), "temperature parameter should be of same size as number of arms"
+        self.some_constant = np.array(boltzmann_configs.some_constant, dtype=np.float32)
+        setattr(
+            self,
+            "calc_betas",
+            self._create_calc_betas(explor_type=boltzmann_configs.explor_type),
+        )
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """choose an arm from the boltzmann distribution
@@ -217,125 +231,107 @@ class BoltzmannConstant(BaseModel):
         Returns:
             int: simulated action
         """
-        canonical_parameter = self.temperature * self.values
-        input_vector = np.exp(canonical_parameter)
-        probs = (input_vector / np.sum(input_vector)).tolist()
-        unif_distr = np.random.rand()
-        cum = 0
-        position: int = 0  # fallback variable for return
-        for position, probability in enumerate(probs):
-            cum += probability
-            if unif_distr < cum:
-                break
-        return position
+        _betas = self.calc_betas(arm_attrib=arm_attrib)
+        _logits = self.values / _betas
+        probs = np.exp(_logits) / np.sum(np.exp(_logits))
+        return np.random.choice(self.n_arms, p=probs)
 
-
-class BoltzmannGumbel(BoltzmannConstant):
-    """boltzmann exploration algorithm also known as softmax bandit"""
-
-    def __init__(self, temperature: float, bandit_env: BaseBanditEnv):
-        """initialize boltzmann algorithm with constant temperature
+    def calc_betas(self, arm_attrib: ArmAttributes | None = None) -> np.ndarray:
+        """calculating beta values for boltzmann algorithm
 
         Args:
-            temperature (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(temperature=temperature, bandit_env=bandit_env)
-
-    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
-        """select action with respect to gumbel trick
+            arm_attrib (ArmAttributes): parameter for calculating beta values
 
         Returns:
-            int: returned action
+            np.ndarray: beta values for algorithm
         """
-        _parameter = self.temperature * self.values
-        gumbel_rvs = np.random.gumbel(loc=0, scale=1, size=self.n_arms)
-        return np.argmax(_parameter + gumbel_rvs)
+        return np.ones_like(self.values)
 
-
-class BoltzmannGumbelRightWay(BaseModel):
-    """boltzmann exploration algorithm also known as softmax bandit"""
-
-    def __init__(self, some_constant: float, bandit_env: BaseBanditEnv) -> None:
-        """initialize boltzmann algorithm with constant temperature
-
-        Args:
-            temperature (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(bandit_env=bandit_env)
-        # init tests
-        assert is_positive_float(
-            some_constant
-        ), "The some_constant  has to be a positive float"
-
-        self.some_constant = some_constant
-
-    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
-        """get action from boltzmann gumbel paper"""
-
-        gumbel_rvs = np.random.gumbel(loc=0.0, scale=1.0, size=self.n_arms)
-        betas = self.some_constant * np.sqrt(1 / self.counts)
-        used_parameter = self.values + betas * gumbel_rvs
-        return np.argmax(used_parameter)
-
-
-class BoltzmannGumbelRandomVariable(BaseModel):
-    """abstract class for boltzmann gumbel classes with using costum random variables"""
-
-    def __init__(
-        self,
-        bandit_env: BaseBanditEnv,
-        some_constant: float,
-        randomvariable_dict: dict,
-    ) -> None:
-        """initialize boltzmann algorithm with constant temperature
-
-        Args:
-            temperature (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(bandit_env=bandit_env)
-        # init tests
-        assert is_positive_float(
-            some_constant
-        ), "The some_constant  has to be a positive float"
-        assert isinstance(randomvariable_dict, dict), "Have to be a dict"
-
-        self.some_constant = some_constant
-        _dist = getattr(stats, randomvariable_dict["name"])
-        self.random_variable = _dist(**randomvariable_dict["parameter"]).rvs(
-            size=(bandit_env.max_steps, bandit_env.n_arms)
-        )
-
-    def select_arm(self, arm_attrib: ArmAttributes) -> int:
-        """get action from boltzmann gumbel paper"""
-
-        random_variables = self.random_variable[arm_attrib.step_in_game,]
-        betas = self.calculate_beta()
-        betas = np.nan_to_num(betas, nan=np.inf)
-        used_parameter = self.values + betas * random_variables
-
-        return int(np.argmax(used_parameter))
-
-    def calculate_beta(self) -> np.float32:
-        """calculate beta value for constant gumbel
+    def _create_calc_betas(
+        self, explor_type: ExplorationType
+    ) -> Callable[[ArmAttributes], np.ndarray]:
+        """create method to calculate beta values for boltzmann algorithm
+        based on configs
 
         Returns:
-            np.float32: beta value for constant gumbel
+            Callable[[ArmAttributes], float]: method to calculate beta values for boltzmann
+            algorithm
         """
-        return self.some_constant**2
+        if explor_type == ExplorationType.CONSTANT:
+
+            def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
+                return self.some_constant**2
+
+            return _calc_betas
+
+        if explor_type == ExplorationType.SQRT:
+
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.sqrt(1 + arm_attrib.step_in_game)
+
+            return _calc_betas
+
+        if explor_type == ExplorationType.LOG:
+
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.log(1 + arm_attrib.step_in_game)
+
+            return _calc_betas
+        if explor_type == ExplorationType.UCB:
+
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result = result * np.log(1 + arm_attrib.step_in_game)
+                result[result == 0.0] = np.inf
+                return result
+
+            return _calc_betas
+        if explor_type == ExplorationType.BGE:
+
+            def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result[result == 0.0] = np.inf
+                return result
+
+            return _calc_betas
+        raise NotImplementedError(f"{explor_type} not implemented yet")
 
 
-# TODO: boltzmann random variable change
-class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
+@dataclass
+class RandomVariable:
+    """store properties for random variable in boltzmann algorithms"""
+
+    rv_name: str
+    rv_param: dict[str, Any]
+
+    def __post_init__(self):
+        assert self.rv_name in dir(stats)
+
+
+class BoltzmannGeneral(BoltzmannSimple):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
     def __init__(
         self,
+        boltzmannconfigs: BoltzmannConfigs,
         bandit_env: BaseBanditEnv,
-        some_constant: float,
-        randomvariable_dict: dict,
+        rv_config: RandomVariable,
     ):
         """initialize boltzmann algorithm with constant temperature
 
@@ -343,77 +339,25 @@ class BoltzmannGumbelRandomVariableSqrt(BoltzmannGumbelRandomVariable):
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(
-            some_constant=some_constant,
-            bandit_env=bandit_env,
-            randomvariable_dict=randomvariable_dict,
-        )
+        super().__init__(bandit_env=bandit_env, boltzmann_configs=boltzmannconfigs)
+        self.random_variables = self.sample_random_variables(rv_config=rv_config)
 
-    def calculate_beta(self) -> np.float32:
-        """calculate beta value for given steps"""
-        return self.some_constant * np.sum(self.counts) ** (-0.5)
+    def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
+        """get action from boltzmann gumbel paper"""
 
+        random_variables = self.random_variables[arm_attrib.step_in_game,]
+        _betas = self.calc_betas(arm_attrib=arm_attrib)
+        _used_parameter = self.values + _betas * random_variables
+        return int(np.argmax(_used_parameter))
 
-class BoltzmannGumbelRandomVariableLog(BoltzmannGumbelRandomVariable):
-    """boltzmann exploration algorithm also known as softmax bandit"""
-
-    def __init__(
-        self,
-        bandit_env: BaseBanditEnv,
-        some_constant: float,
-        randomvariable_dict: dict,
-    ):
-        """initialize boltzmann algorithm with constant temperature
-
-        Args:
-            temperature (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(
-            bandit_env=bandit_env,
-            some_constant=some_constant,
-            randomvariable_dict=randomvariable_dict,
-        )
-
-    def calculate_beta(self) -> np.float32:
-        """calculate the beta value for the given
+    def sample_random_variables(self, rv_config: RandomVariable) -> np.ndarray:
+        """get realization of random variables for algorithm
 
         Returns:
-            np.float32: _description_
+            np.ndarray: all required random variables
         """
-        return self.some_constant**2 * (np.log(np.sum(self.counts)) ** -1)
-
-
-class BoltzmannGumbelRandomVariableUCB(BoltzmannGumbelRandomVariable):
-    """boltzmann exploration algorithm also known as softmax bandit"""
-
-    def __init__(
-        self,
-        bandit_env: BaseBanditEnv,
-        some_constant: float,
-        randomvariable_dict: dict,
-    ) -> None:
-        """initialize boltzmann algorithm with constant temperature
-
-        Args:
-            temperature (float): float describing learning rate
-            n_arms (int): number of used arms
-        """
-        super().__init__(
-            some_constant=some_constant,
-            bandit_env=bandit_env,
-            randomvariable_dict=randomvariable_dict,
-        )
-
-    def calculate_beta(self) -> np.float32:
-        """calculate the beta value for the given step
-
-        Returns:
-            np.float32: beta parameter for the given step
-        """
-        return self.some_constant * np.sqrt(
-            (np.log(np.sum(self.counts))) * self.counts**-1
-        )
+        _dist = getattr(stats, rv_config.rv_name)
+        return _dist(**rv_config.rv_param).rvs(size=(self.max_steps, self.n_arms))
 
 
 class GradientBandit(BaseModel):
@@ -524,5 +468,6 @@ __all__ = [
     ExploreThenCommit.__name__,
     EpsilonGreedy.__name__,
     BaseModel.__name__,
-    BoltzmannConstant.__name__,
+    BoltzmannSimple.__name__,
+    BoltzmannGeneral.__name__,
 ]

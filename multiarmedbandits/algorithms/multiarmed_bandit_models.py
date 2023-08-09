@@ -329,7 +329,7 @@ class BoltzmannGeneral(BoltzmannSimple):
 
     def __init__(
         self,
-        boltzmannconfigs: BoltzmannConfigs,
+        boltzmann_configs: BoltzmannConfigs,
         bandit_env: BaseBanditEnv,
         rv_config: RandomVariable,
     ):
@@ -339,7 +339,7 @@ class BoltzmannGeneral(BoltzmannSimple):
             temperature (float): float describing learning rate
             n_arms (int): number of used arms
         """
-        super().__init__(bandit_env=bandit_env, boltzmann_configs=boltzmannconfigs)
+        super().__init__(bandit_env=bandit_env, boltzmann_configs=boltzmann_configs)
         self.random_variables = self.sample_random_variables(rv_config=rv_config)
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
@@ -470,4 +470,5 @@ __all__ = [
     BaseModel.__name__,
     BoltzmannSimple.__name__,
     BoltzmannGeneral.__name__,
+    RandomVariable.__name__,
 ]

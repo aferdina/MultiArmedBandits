@@ -4,7 +4,6 @@ import random
 from typing import Any, Callable
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from strenum import StrEnum
 import numpy as np
 from scipy import stats
 from multiarmedbandits.utils import (
@@ -14,6 +13,7 @@ from multiarmedbandits.utils import (
     is_list_of_floats,
 )
 from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
+from multiarmedbandits.algorithms.utils import ExplorationType, BoltzmannConfigs
 
 
 @dataclass
@@ -198,24 +198,6 @@ class UCB(BaseModel):
         self.counts = np.zeros(self.n_arms, dtype=np.float32)
         self.values = np.zeros(self.n_arms, dtype=np.float32)
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
-
-
-class ExplorationType(StrEnum):
-    """different types of Exploration in Boltzmann exploration Algorithms"""
-
-    CONSTANT = "constant"
-    LOG = "log"
-    SQRT = "sqrt"
-    UCB = "ucb"
-    BGE = "bge"
-
-
-@dataclass
-class BoltzmannConfigs:
-    """configuration for boltzmann exploration"""
-
-    explor_type: ExplorationType
-    some_constant: list[float]
 
 
 class BoltzmannSimple(BaseModel):
@@ -459,4 +441,5 @@ __all__ = [
     EpsilonGreedy.__name__,
     BaseModel.__name__,
     BoltzmannSimple.__name__,
+    BoltzmannGeneral.__name__,
 ]

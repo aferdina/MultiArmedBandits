@@ -115,7 +115,6 @@ class Algorithms(Enum):
     BOLTZMANNSIMPLE = bandit_algos.BoltzmannSimple
     BOLTZMANNRANDOM = bandit_algos.BoltzmannGeneral
     GRADIENTBANDIT = bandit_algos.GradientBandit
-    GRADIENTNOBASELINE = bandit_algos.GradientBanditnobaseline
 
 
 @dataclass

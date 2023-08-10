@@ -1,5 +1,6 @@
 """ run multiple multi armed bandit models
 """
+import os
 from typing import Any, List
 from dataclasses import dataclass
 from enum import Enum
@@ -254,6 +255,39 @@ class CompareMultiArmedBandits:
             BaseModel: instance of mab algorithm
         """
         return mab_algo.dist_type.value(bandit_env=test_env, **mab_algo.dist_params)
+
+    @staticmethod
+    def store_metric(
+        named_metric: NamedMABMetrics,
+        file_path: str,
+        metrics_to_store: List[MetricNames],
+    ) -> None:
+        """store named metric as csv
+
+        Args:
+            named_metric (NamedMABMetrics): metric to store
+        """
+        combined_array = np.column_stack(
+            tuple(
+                getattr(named_metric.metrics, metric_name)
+                for metric_name in metrics_to_store
+            )
+        )
+        store_path = os.path.join(
+            file_path,
+            str(named_metric.algorithm.dist_type),
+            str(named_metric.algorithm.dist_params),
+        )
+        if not os.path.exists(store_path):
+            os.makedirs(store_path)
+        header = ",".join(metrics_to_store)
+        np.savetxt(
+            store_path + "/" + "data.csv",
+            combined_array,
+            delimiter=",",
+            header=header,
+            comments="",
+        )
 
 
 __all__ = [

@@ -1,10 +1,12 @@
 """ run multiple multi armed bandit models
 """
+import os
 from typing import Any, List
 from dataclasses import dataclass
 from enum import Enum
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from multiarmedbandits.environments import (
     BaseBanditEnv,
     INFODICT,
@@ -16,6 +18,9 @@ from multiarmedbandits.run_algorithm.utils import (
     next_square,
 )
 import multiarmedbandits.algorithms.multiarmed_bandit_models as bandit_algos
+
+COMPARISON_TITLE = "multiarmed bandit comparisons"
+INDEX_AXIS = "Timesteps"
 
 
 class RunMultiarmedBanditModel:
@@ -116,6 +121,9 @@ class Algorithms(Enum):
     BOLTZMANNRANDOM = bandit_algos.BoltzmannGeneral
     GRADIENTBANDIT = bandit_algos.GradientBandit
 
+    def __str__(self):
+        return self.name.capitalize()
+
 
 @dataclass
 class MultiArmedBanditModel:
@@ -137,7 +145,9 @@ class CompareMultiArmedBandits:
     """compare multiable multiarmed bandit models"""
 
     def __init__(
-        self, test_env: BaseBanditEnv, mab_algorithms: List[MultiArmedBanditModel]
+        self,
+        test_env: BaseBanditEnv,
+        mab_algorithms: List[MultiArmedBanditModel],
     ):
         self.mab_env = test_env
         self.mab_algorithms = mab_algorithms
@@ -179,20 +189,20 @@ class CompareMultiArmedBandits:
         _rows_square, rows = next_square(number=no_of_metrics)
         cols = rows if rows * (rows - 1) < no_of_metrics else rows - 1
         fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
-        fig.suptitle("Comparision", fontsize=16)
+        fig.suptitle(f"{COMPARISON_TITLE}", fontsize=16)
         pos = 0
-        index_array = np.arange(named_metrics[0].metrics.horizon)
+        axis: Axes
         if axs.ndim == 1:
             for row in range(rows):
                 # add multiple plots
+                axis = axs[row]
+                metric_to_plot = metrics_to_plot[pos]
                 for named_metric in named_metrics:
-                    axs[row].plot(
-                        index_array,
-                        getattr(named_metric.metrics, metrics_to_plot[pos]),
-                        label=f"{named_metric.algorithm.dist_type}:{named_metric.algorithm.dist_params}",
+                    self.plot_named_metric(
+                        axis=axis,
+                        named_metric=named_metric,
+                        metric_to_plot=metric_to_plot,
                     )
-                    axs[row].legend()
-                    axs[row].set_title(f"{metrics_to_plot[pos]}")
                 pos += 1
             plt.show()
         else:
@@ -200,17 +210,37 @@ class CompareMultiArmedBandits:
                 for col in range(cols):
                     if pos < no_of_metrics:
                         axis = axs[row, col]
+                        metric_to_plot = metrics_to_plot[pos]
                         for named_metric in named_metrics:
-                            axis.plot(
-                                index_array,
-                                getattr(named_metric.metrics, metrics_to_plot[pos]),
-                                label=f"{named_metric.algorithm.dist_type}:{named_metric.algorithm.dist_params}",
+                            self.plot_named_metric(
+                                axis=axis,
+                                named_metric=named_metric,
+                                metric_to_plot=metric_to_plot,
                             )
-                            axis.legend()
-                            axis.set_title(f"{metrics_to_plot[pos]}")
                         pos += 1
 
             plt.show()
+
+    @staticmethod
+    def plot_named_metric(
+        axis: Axes, named_metric: NamedMABMetrics, metric_to_plot: MetricNames
+    ) -> None:
+        """plot specific metric on axis in matplotlib
+
+        Args:
+            axis (Axes): axis to plot metric on
+            named_metric (NamedMABMetrics): values to plot
+            metric_to_plot (MetricNames): metrics to plot
+        """
+        index_array = np.arange(named_metric.metrics.horizon)
+        axis.plot(
+            index_array,
+            getattr(named_metric.metrics, metric_to_plot),
+            label=f"{str(named_metric.algorithm.dist_type)}:{named_metric.algorithm.dist_params}",
+        )
+        axis.legend()
+        axis.set_ylabel(f"{metric_to_plot} over {named_metric.metrics.no_runs} runs")
+        axis.set_xlabel(INDEX_AXIS)
 
     def get_mab_algo(
         self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel
@@ -225,6 +255,39 @@ class CompareMultiArmedBandits:
             BaseModel: instance of mab algorithm
         """
         return mab_algo.dist_type.value(bandit_env=test_env, **mab_algo.dist_params)
+
+    @staticmethod
+    def store_metric(
+        named_metric: NamedMABMetrics,
+        file_path: str,
+        metrics_to_store: List[MetricNames],
+    ) -> None:
+        """store named metric as csv
+
+        Args:
+            named_metric (NamedMABMetrics): metric to store
+        """
+        combined_array = np.column_stack(
+            tuple(
+                getattr(named_metric.metrics, metric_name)
+                for metric_name in metrics_to_store
+            )
+        )
+        store_path = os.path.join(
+            file_path,
+            str(named_metric.algorithm.dist_type),
+            str(named_metric.algorithm.dist_params),
+        )
+        if not os.path.exists(store_path):
+            os.makedirs(store_path)
+        header = ",".join(metrics_to_store)
+        np.savetxt(
+            store_path + "/" + "data.csv",
+            combined_array,
+            delimiter=",",
+            header=header,
+            comments="",
+        )
 
 
 __all__ = [

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "multiarmedbandits"
 version = "0.1.0"
-description = ""
+description = "Package to analyze multiarmedbandit algorithms"
 authors = ["Andre Ferdinand <andre.ferdinand@uni-mannheim.de>"]
 readme = "README.md"
 
@@ -12,12 +12,12 @@ strenum = "^0.4.15"
 ipykernel = "^6.25.0"
 scipy = "^1.11.1"
 matplotlib = "^3.7.2"
-pytest-lazy-fixture = "^0.6.3"
 
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.17.5"
 pytest = "^7.4.0"
+pytest-lazy-fixture = "^0.6.3"
 
 [build-system]
 requires = ["poetry-core"]

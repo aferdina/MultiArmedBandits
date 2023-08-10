@@ -1,14 +1,14 @@
+"""run experiments for epsilon greedy algorithm"""
+
 from multiarmedbandits.run_algorithm.compare_models import (
     CompareMultiArmedBandits,
     MultiArmedBanditModel,
-    NamedMABMetrics,
     Algorithms,
 )
 from multiarmedbandits.environments import (
     BaseBanditEnv,
     DistParameter,
     ArmDistTypes,
-    INFODICT,
 )
 from multiarmedbandits.run_algorithm.utils import (
     MetricNames,

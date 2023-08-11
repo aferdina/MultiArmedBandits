@@ -1,52 +1,98 @@
 """run multiarmed bandit comparisons"""
-from dataclasses import dataclass
 import argparse
-from multiarmedbandits.run_algorithm.compare_models import CompareMultiArmedBandits
+from dataclasses import dataclass
+from typing import Tuple, List, Any
+from strenum import StrEnum
+import yaml
+from multiarmedbandits.run_algorithm.compare_models import (
+    CompareMultiArmedBandits,
+    Algorithms,
+    MultiArmedBanditModel,
+)
 import multiarmedbandits.environments as mab_envs
+import multiarmedbandits.algorithms as mab_algos
+from multiarmedbandits.run_algorithm.utils import (
+    MetricNames,
+)
+from multiarmedbandits.run_algorithm.config_utils import (
+    SEQUENCETAG,
+    sequence_constructor,
+    add_constructors,
+)
+
+
+class EnvAlgoConfigs(StrEnum):
+    """dictionary names for env algo configurations"""
+
+    MAB_ENV = "mab_env"
+    MAB_ALGOS = "mab_algos"
+    NO_OF_RUNS = "no_of_runs"
+    METRICS_TO_PLOT = "metrics_to_plot"
+
+
+def read_mab_env_and_algos(
+    configs_path: str,
+) -> Tuple[
+    str, mab_envs.BaseBanditEnv, List[mab_algos.BaseModel], int, List[MetricNames]
+]:
+    """read multi armed bandit environment and multiarmed bandit models
+
+    Args:
+        configs_path (str): path to configs for multiarmed bandit models
+
+    Returns:
+        Tuple[mab_envs.BaseBanditEnv, List[mab_algos.BaseModel, int]]: Environment to run
+        algorithms, algorithms to run, max number of runs
+    """
+    print(f"Loading hyperparameters from: {configs_path}")
+    yaml.add_constructor(SEQUENCETAG, sequence_constructor)
+    add_constructors(
+        [
+            mab_algos.EpsilonGreedy,
+            mab_envs.BaseBanditEnv,
+            mab_envs.DistParameter,
+            mab_envs.ArmDistTypes,
+            MetricNames,
+            Algorithms,
+            MultiArmedBanditModel,
+        ]
+    )
+    if configs_path.endswith(".yml") or configs_path.endswith(".yaml"):
+        # Load hyperparameters from yaml file
+        with open(configs_path, "r", encoding="utf-8") as file:
+            experiment: dict[str, Any] = yaml.load(file, Loader=yaml.FullLoader)
+    exp_name = list(experiment.keys())[0]
+    mab_env = experiment[exp_name][EnvAlgoConfigs.MAB_ENV]
+    mab_algorithm = experiment[exp_name][EnvAlgoConfigs.MAB_ALGOS]
+    no_of_runs = experiment[exp_name][EnvAlgoConfigs.NO_OF_RUNS]
+    metrics_to_plot = experiment[exp_name][EnvAlgoConfigs.METRICS_TO_PLOT]
+    return exp_name, mab_env, mab_algorithm, no_of_runs, metrics_to_plot
 
 
 @dataclass
 class MabArgs:
-    env_dist_type: str
-    max_steps: int
-    env_dist_params: dict
-    no_of_runs: int
+    """dataclass to store information from argument parser"""
+
     plot_metrics: bool
     save_metrics: bool
+    store_path: str
+    config_path: str
 
 
 def train() -> None:
+    """ main file
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--env-dist-type",
-        help="distribution type for environment",
-        default="gaussian",
+        "--config-path",
         type=str,
-        required=False,
-        choices=[member.value for member in mab_envs.ArmDistTypes],
-    )
-    parser.add_argument(
-        "--env-dist-parameter",
-        type=dict,
-        default="LogisticGame",
-        help="parameter for distribution arms",
-    )
-    parser.add_argument(
-        "--max-steps",
-        type=int,
-        default=1000,
-        help="maximal steps to run in multiarmedbandit",
-    )
-    parser.add_argument(
-        "--no-of-runs",
-        type=int,
-        default=1000,
-        help="runs to iterate over the trainings process",
+        default="multiarmedbandits/run_algorithm/trainings_configs/epsilon.yaml",
+        help="config path for models",
     )
     parser.add_argument(
         "--plot-metrics",
         type=bool,
-        default=False,
+        default=True,
         help="bool if to run the plot metrics",
     )
     parser.add_argument(
@@ -55,16 +101,36 @@ def train() -> None:
         default=False,
         help="bool if to store the metrics",
     )
-    args: MabArgs = MabArgs(vars(**parser.parse_args()))
-
-    bandit_env = mab_envs.BaseBanditEnv(
-        distr_params=mab_envs.DistParameter(dist_type=args.env_dist_type)
+    parser.add_argument(
+        "--store-path",
+        type=str,
+        default="result",
+        help="path to store the metrics",
     )
-    compare_models = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[])
+    args: MabArgs = MabArgs(**vars(parser.parse_args()))
+    (
+        exp_name,
+        mab_env,
+        mab_algorithm,
+        no_of_runs,
+        metrics_to_plot,
+    ) = read_mab_env_and_algos(configs_path=args.config_path)
+    print(f"experiment to run: {exp_name}")
+    compare_models = CompareMultiArmedBandits(
+        test_env=mab_env, mab_algorithms=mab_algorithm
+    )
 
-    metrics = compare_models.train_all_models(no_of_runs=args.no_of_runs)
+    metrics = compare_models.train_all_models(no_of_runs=no_of_runs)
     if args.plot_metrics:
-        compare_models.plot_multiple_mabs(named_metrics=metrics)
+        compare_models.plot_multiple_mabs(
+            named_metrics=metrics, metrics_to_plot=metrics_to_plot
+        )
+    if args.save_metrics:
+        compare_models.store_metric(
+            named_metric=metrics,
+            file_path=args.store_path,
+            metrics_to_store=metrics_to_plot,
+        )
 
 
 if __name__ == "__main__":

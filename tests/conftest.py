@@ -5,7 +5,7 @@ import multiarmedbandits.algorithms as mab_algos
 
 
 @pytest.fixture(scope="module")
-def bernoulli_env() -> mab_envs.BaseBanditEnv:
+def gaussian_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.BaseBanditEnv(
         distr_params=mab_envs.DistParameter(
             dist_type=mab_envs.ArmDistTypes.GAUSSIAN,

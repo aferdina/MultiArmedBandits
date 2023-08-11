@@ -5,7 +5,7 @@ import multiarmedbandits.algorithms as mab_algos
 
 
 @pytest.fixture(scope="module")
-def bernoulli_env() -> mab_envs.BaseBanditEnv:
+def gaussian_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.BaseBanditEnv(
         distr_params=mab_envs.DistParameter(
             dist_type=mab_envs.ArmDistTypes.GAUSSIAN,
@@ -44,7 +44,7 @@ def testbed_env() -> mab_envs.BaseBanditEnv:
 def gap_env() -> mab_envs.GapEnv:
     return mab_envs.GapEnv(
         gap_configs=mab_envs.GapEnvConfigs(
-            no_of_arms=10,
+            no_of_arms=2,
             single_arm_distr=mab_envs.SingleArmParams(
                 arm_type=mab_envs.ArmDistTypes.GAUSSIAN,
                 mean_parameter=0.4,

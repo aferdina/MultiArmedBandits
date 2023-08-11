@@ -3,7 +3,7 @@
 import os
 from typing import Any, List
 from dataclasses import dataclass
-from enum import Enum
+from strenum import StrEnum
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
@@ -111,15 +111,15 @@ class RunMultiarmedBanditModel:
         self.metrics = self.metrics + metrics_to_add
 
 
-class Algorithms(Enum):
+class Algorithms(StrEnum):
     """algorithm to use for mab environments"""
 
-    EPSILONGREEDY = bandit_algos.EpsilonGreedy
-    EXPLORRETHENCOMMIT = bandit_algos.ExploreThenCommit
-    UCBALGO = bandit_algos.UCB
-    BOLTZMANNSIMPLE = bandit_algos.BoltzmannSimple
-    BOLTZMANNRANDOM = bandit_algos.BoltzmannGeneral
-    GRADIENTBANDIT = bandit_algos.GradientBandit
+    EPSILONGREEDY = "EpsilonGreedy"
+    EXPLORRETHENCOMMIT = "ExploreThenCommit"
+    UCBALGO = "UCB"
+    BOLTZMANNSIMPLE = "BoltzmannSimple"
+    BOLTZMANNRANDOM = "BoltzmannGeneral"
+    GRADIENTBANDIT = "GradientBandit"
 
     def __str__(self):
         return self.name.capitalize()
@@ -254,7 +254,8 @@ class CompareMultiArmedBandits:
         Returns:
             BaseModel: instance of mab algorithm
         """
-        return mab_algo.dist_type.value(bandit_env=test_env, **mab_algo.dist_params)
+        _distr = getattr(bandit_algos, mab_algo.dist_type)
+        return _distr(bandit_env=test_env, **mab_algo.dist_params)
 
     @staticmethod
     def store_metric(

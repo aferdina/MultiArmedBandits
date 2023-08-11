@@ -59,3 +59,7 @@ def gap_env() -> mab_envs.GapEnv:
 @pytest.fixture(scope="module")
 def epsilon_greedy(bernoulli_env) -> mab_algos.EpsilonGreedy:
     return mab_algos.EpsilonGreedy(epsilon=0.1, bandit_env=bernoulli_env)
+
+@pytest.fixture(scope="module")
+def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
+    return mab_algos.ExploreThenCommit(explore=1, bandit_env=bernoulli_env)

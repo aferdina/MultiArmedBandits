@@ -1,5 +1,6 @@
 # Multiarmed Bandits<!-- omit in toc -->
 
+- [Main Features](#main-features)
 - [Description](#description)
   - [Overview](#overview)
 - [Installation](#installation)
@@ -8,6 +9,21 @@
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Main Features
+
+| **Features**                | **Multiarmedbandits** |
+| --------------------------- | ----------------------|
+| State of the art RL methods | :heavy_check_mark: |
+| Documentation               | :heavy_check_mark: |
+| Custom environments         | :heavy_check_mark: |
+| Custom policies             | :heavy_check_mark: |
+| Common interface            | :heavy_check_mark: |
+| `Dict` observation space support  | :heavy_check_mark: |
+| Ipython / Notebook friendly | :heavy_check_mark: |
+| PEP8 code style             | :heavy_check_mark: |
+| High code coverage          | :heavy_check_mark: |
+| Type hints                  | :heavy_check_mark: |
 
 ## Description
 

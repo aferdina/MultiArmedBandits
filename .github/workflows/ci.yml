@@ -33,6 +33,7 @@ jobs:
         pip install poetry
         poetry config virtualenvs.create false
         poetry install
+        git update-index --chmod=+x /scripts/run_tests.sh
     - name: Lint with ruff
       run: |
         make lint

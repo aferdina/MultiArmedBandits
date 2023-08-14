@@ -67,17 +67,11 @@ class RunMultiarmedBanditModel:
             done = False
             while not done:
                 # playing the game until it is done
-                action = self.mab_algo.select_arm(
-                    arm_attrib=info[INFODICT.ARMATTRIBUTES]
-                )
+                action = self.mab_algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
                 _new_state, reward, done, info = self.bandit_env.step(action)
                 rewards[game, (self.bandit_env.count - 1)] = reward
-                regrets[
-                    game, (self.bandit_env.count - 1)
-                ] = self.bandit_env.bandit_statistics.regret
-                optimalities[
-                    game, (self.bandit_env.count - 1)
-                ] = self.bandit_env.bandit_statistics.played_optimal
+                regrets[game, (self.bandit_env.count - 1)] = self.bandit_env.bandit_statistics.regret
+                optimalities[game, (self.bandit_env.count - 1)] = self.bandit_env.bandit_statistics.played_optimal
 
                 self.mab_algo.update(action, reward)
         # calculate needed metrics
@@ -157,12 +151,8 @@ class CompareMultiArmedBandits:
         """
         named_mabs_metrics = []
         for mab_algorithms in self.mab_algorithms:
-            mab_algo_instance = self.get_mab_algo(
-                test_env=self.mab_env, mab_algo=mab_algorithms
-            )
-            train_algo = RunMultiarmedBanditModel(
-                mab_algo=mab_algo_instance, bandit_env=self.mab_env
-            )
+            mab_algo_instance = self.get_mab_algo(test_env=self.mab_env, mab_algo=mab_algorithms)
+            train_algo = RunMultiarmedBanditModel(mab_algo=mab_algo_instance, bandit_env=self.mab_env)
             named_metrics = NamedMABMetrics(
                 algorithm=mab_algorithms,
                 metrics=train_algo.get_metrics_from_runs(no_runs=no_of_runs),
@@ -170,9 +160,7 @@ class CompareMultiArmedBandits:
             named_mabs_metrics.append(named_metrics)
         return named_mabs_metrics
 
-    def plot_multiple_mabs(
-        self, named_metrics: List[NamedMABMetrics], metrics_to_plot: List[MetricNames]
-    ):
+    def plot_multiple_mabs(self, named_metrics: List[NamedMABMetrics], metrics_to_plot: List[MetricNames]):
         """plot metrics from running multiarmed agent module
 
         Args:
@@ -216,9 +204,7 @@ class CompareMultiArmedBandits:
             plt.show()
 
     @staticmethod
-    def plot_named_metric(
-        axis: Axes, named_metric: NamedMABMetrics, metric_to_plot: MetricNames
-    ) -> None:
+    def plot_named_metric(axis: Axes, named_metric: NamedMABMetrics, metric_to_plot: MetricNames) -> None:
         """plot specific metric on axis in matplotlib
 
         Args:
@@ -236,9 +222,7 @@ class CompareMultiArmedBandits:
         axis.set_ylabel(f"{metric_to_plot} over {named_metric.metrics.no_runs} runs")
         axis.set_xlabel(INDEX_AXIS)
 
-    def get_mab_algo(
-        self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel
-    ) -> bandit_algos.BaseModel:
+    def get_mab_algo(self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel) -> bandit_algos.BaseModel:
         """create instance of mab algorithm from multi armed bandit model and algo configs
 
         Args:
@@ -262,12 +246,7 @@ class CompareMultiArmedBandits:
         Args:
             named_metric (NamedMABMetrics): metric to store
         """
-        combined_array = np.column_stack(
-            tuple(
-                getattr(named_metric.metrics, metric_name)
-                for metric_name in metrics_to_store
-            )
-        )
+        combined_array = np.column_stack(tuple(getattr(named_metric.metrics, metric_name) for metric_name in metrics_to_store))
         store_path = os.path.join(
             file_path,
             str(named_metric.algorithm.dist_type),

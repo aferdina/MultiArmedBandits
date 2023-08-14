@@ -62,9 +62,7 @@ class BaseModel(ABC):
         times_played_chosen_arm = self.counts[chosen_arm]
         value = self.values[chosen_arm]
         # update via memory trick
-        self.values[chosen_arm] = self.memory_trick(
-            times_played=times_played_chosen_arm, old_mean=value, value_to_add=reward
-        )
+        self.values[chosen_arm] = self.memory_trick(times_played=times_played_chosen_arm, old_mean=value, value_to_add=reward)
 
     def reset(self) -> None:
         """reset agent by resetting all required statistics"""
@@ -83,9 +81,7 @@ class BaseModel(ABC):
         Returns:
             float: updated mean value
         """
-        return ((times_played - 1) / times_played) * old_mean + (
-            1 / times_played
-        ) * value_to_add
+        return ((times_played - 1) / times_played) * old_mean + (1 / times_played) * value_to_add
 
 
 class EpsilonGreedy(BaseModel):
@@ -99,9 +95,7 @@ class EpsilonGreedy(BaseModel):
             n_arms (int): number of possible arms
         """
         super().__init__(bandit_env=bandit_env)
-        assert is_float_between_0_and_1(
-            epsilon
-        ), f"{epsilon} should be a float between 0 and 1"
+        assert is_float_between_0_and_1(epsilon), f"{epsilon} should be a float between 0 and 1"
         self.epsilon = epsilon
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
@@ -153,14 +147,10 @@ class UCB(BaseModel):
             delta (float): delta parameter of ucb algorithm
         """
         super().__init__(bandit_env=bandit_env)
-        assert is_float_between_0_and_1(
-            delta
-        ), f"{delta} should be a float between 0 and 1"
+        assert is_float_between_0_and_1(delta), f"{delta} should be a float between 0 and 1"
         self.delta = delta
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
-        self._exploration_factor = np.sqrt(-2 * np.log(self.delta)) * np.ones(
-            self.n_arms, dtype=np.float32
-        )
+        self._exploration_factor = np.sqrt(-2 * np.log(self.delta)) * np.ones(self.n_arms, dtype=np.float32)
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """select the best arm given the value estimators and the ucb bound
@@ -206,9 +196,7 @@ class BoltzmannSimple(BaseModel):
         """
         super().__init__(bandit_env=bandit_env)
         # init tests
-        assert is_list_of_floats(
-            boltzmann_configs.some_constant
-        ), "The temperature  has to be a positive float"
+        assert is_list_of_floats(boltzmann_configs.some_constant), "The temperature  has to be a positive float"
         assert (
             len(boltzmann_configs.some_constant) == self.n_arms
         ), "temperature parameter should be of same size as number of arms"
@@ -237,9 +225,7 @@ class BoltzmannSimple(BaseModel):
         """
         return np.ones_like(self.values)
 
-    def _create_calc_betas(
-        self, explor_type: ExplorationType
-    ) -> Callable[[ArmAttributes], np.ndarray]:
+    def _create_calc_betas(self, explor_type: ExplorationType) -> Callable[[ArmAttributes], np.ndarray]:
         """create method to calculate beta values for boltzmann algorithm
         based on configs
 
@@ -373,9 +359,7 @@ class GradientBandit(BaseModel):
         self.calc_baseline = self._create_calc_baseline(baseline_typ=baseline_attr.type)
         self.baseline_attr = baseline_attr
 
-    def _create_calc_baseline(
-        self, baseline_typ: BaseLinesTypes
-    ) -> Callable[[GradientBaseLineAttr], float]:
+    def _create_calc_baseline(self, baseline_typ: BaseLinesTypes) -> Callable[[GradientBaseLineAttr], float]:
         """create baseline function for given baseline type
 
         Args:
@@ -450,9 +434,7 @@ class GradientBandit(BaseModel):
         # update mean reward
         self.baseline_attr.mean_reward = (
             (self.baseline_attr.step_count - 1) / float(self.baseline_attr.step_count)
-        ) * self.baseline_attr.mean_reward + (
-            1 / float(self.baseline_attr.step_count)
-        ) * reward
+        ) * self.baseline_attr.mean_reward + (1 / float(self.baseline_attr.step_count)) * reward
 
     def reset(self) -> None:
         """reset agent by resetting all required statistics"""

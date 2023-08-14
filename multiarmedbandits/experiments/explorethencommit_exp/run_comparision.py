@@ -15,18 +15,10 @@ test_environment = BaseBanditEnv(
 )
 
 ## Algorithms to compare
-algo_one = MultiArmedBanditModel(
-    dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 10}
-)
-algo_two = MultiArmedBanditModel(
-    dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 50}
-)
-algo_three = MultiArmedBanditModel(
-    dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 100}
-)
-algo_four = MultiArmedBanditModel(
-    dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 200}
-)
+algo_one = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 10})
+algo_two = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 50})
+algo_three = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 100})
+algo_four = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 200})
 explorethencommit_compare = CompareMultiArmedBandits(
     test_env=test_environment,
     mab_algorithms=[algo_one, algo_two, algo_three, algo_four],

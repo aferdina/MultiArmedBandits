@@ -34,9 +34,7 @@ from multiarmedbandits.environments import BaseBanditEnv
         ),
     ],
 )
-def test_env_init(
-    env: BaseBanditEnv, max_steps: int, max_mean: int, max_mean_position: List[int]
-) -> None:
+def test_env_init(env: BaseBanditEnv, max_steps: int, max_mean: int, max_mean_position: List[int]) -> None:
     env.reset()
     assert env.count == 0, "env count after resetting should be equal to 0"
     assert env.done is False, "env done init as False"
@@ -55,9 +53,7 @@ def test_env_init(
         assert isinstance(done, bool), "done must be a bool variable"
         assert isinstance(info, dict), "info must be a dict"
     assert env.count == 2, "env count after going two steps should be equal to 2"
-    assert (
-        env.bandit_statistics.played_optimal == 1
-    ), "after playing each arm ones, one time optimal is played"
+    assert env.bandit_statistics.played_optimal == 1, "after playing each arm ones, one time optimal is played"
     env.reset()
     # testing bandit statistics again after step
     assert env.count == 0, "env count after resetting should be equal to 0"
@@ -88,9 +84,7 @@ def test_testbed_init(env: BaseBanditEnv) -> None:
         assert next_state == 0, "next state is always 0"
         assert isinstance(done, bool), "done must be a bool variable"
         assert isinstance(info, dict), "info must be a dict"
-    assert (
-        env.bandit_statistics.played_optimal >= 1
-    ), "after playing each arm ones, at least one optimal"
+    assert env.bandit_statistics.played_optimal >= 1, "after playing each arm ones, at least one optimal"
     assert env.count == 5, "env count after going two steps should be equal to 2"
     env.reset()
     assert env.count == 0, "env count after resetting should be equal to 0"

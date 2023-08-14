@@ -26,9 +26,7 @@ algo_four = MultiArmedBanditModel(
     dist_type=Algorithms.UCBALGO,
     dist_params={"delta": 0.5},
 )
-compare = CompareMultiArmedBandits(
-    test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four]
-)
+compare = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four])
 metrics = compare.train_all_models(no_of_runs=100)
 compare.plot_multiple_mabs(
     named_metrics=metrics,

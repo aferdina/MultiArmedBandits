@@ -24,9 +24,7 @@ class EnvAlgoConfigs(StrEnum):
 
 def read_mab_env_and_algos(
     configs_path: str,
-) -> Tuple[
-    str, mab_envs.BaseBanditEnv, List[mab_algos.BaseModel], int, List[MetricNames]
-]:
+) -> Tuple[str, mab_envs.BaseBanditEnv, List[mab_algos.BaseModel], int, List[MetricNames]]:
     """read multi armed bandit environment and multiarmed bandit models
 
     Args:
@@ -72,8 +70,7 @@ class MabArgs:
 
 
 def train() -> None:
-    """ main file
-    """
+    """main file"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config-path",
@@ -108,15 +105,11 @@ def train() -> None:
         metrics_to_plot,
     ) = read_mab_env_and_algos(configs_path=args.config_path)
     print(f"experiment to run: {exp_name}")
-    compare_models = CompareMultiArmedBandits(
-        test_env=mab_env, mab_algorithms=mab_algorithm
-    )
+    compare_models = CompareMultiArmedBandits(test_env=mab_env, mab_algorithms=mab_algorithm)
 
     metrics = compare_models.train_all_models(no_of_runs=no_of_runs)
     if args.plot_metrics:
-        compare_models.plot_multiple_mabs(
-            named_metrics=metrics, metrics_to_plot=metrics_to_plot
-        )
+        compare_models.plot_multiple_mabs(named_metrics=metrics, metrics_to_plot=metrics_to_plot)
     if args.save_metrics:
         compare_models.store_metric(
             named_metric=metrics,

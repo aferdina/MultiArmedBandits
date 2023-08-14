@@ -62,25 +62,19 @@ class MABMetrics:
             MABMetrics: updated metrics
         """
         if not isinstance(other, MABMetrics):
-            raise TypeError(
-                f"Unsupported operand type for +: 'MABMetrics' and '{type(other)}'"
-            )
+            raise TypeError(f"Unsupported operand type for +: 'MABMetrics' and '{type(other)}'")
         if not self.horizon == other.horizon:
             raise ValueError("Horizon must be the same")
         new_no_runs = self.no_runs + other.no_runs
         new_metric = MABMetrics(horizon=self.horizon, no_runs=new_no_runs)
         for attr_name, attr_value in vars(other).items():
             if attr_name not in ["horizon", "no_runs"]:
-                new_value = (
-                    other.no_runs * attr_value + getattr(self, attr_name) * self.no_runs
-                ) / new_no_runs
+                new_value = (other.no_runs * attr_value + getattr(self, attr_name) * self.no_runs) / new_no_runs
                 setattr(new_metric, attr_name, new_value)
         return new_metric
 
 
-def plot_statistics(
-    metrics: MABMetrics, metrics_to_plot: list[MetricNames], title: str = ""
-) -> None:
+def plot_statistics(metrics: MABMetrics, metrics_to_plot: list[MetricNames], title: str = "") -> None:
     """plot metrics from running multiarmed agent module
 
     Args:
@@ -96,9 +90,7 @@ def plot_statistics(
     index_array = np.arange(metrics.horizon)
     if axs.ndim == 1:
         for row in range(rows):
-            axs[row].plot(
-                index_array, getattr(metrics, metrics_to_plot[pos]), color="red"
-            )
+            axs[row].plot(index_array, getattr(metrics, metrics_to_plot[pos]), color="red")
             axs[row].set_title(f"{metrics_to_plot[pos]}")
             pos += 1
         plt.show()

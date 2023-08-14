@@ -18,9 +18,7 @@ algo_one = MultiArmedBanditModel(
             explor_type=bandit_algos.ExplorationType.BGE,
             some_constant=[1.0, 1.0, 1.0],
         ),
-        "rv_config": bandit_algos.RandomVariable(
-            rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}
-        ),
+        "rv_config": bandit_algos.RandomVariable(rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}),
     },
 )
 algo_two = MultiArmedBanditModel(
@@ -30,9 +28,7 @@ algo_two = MultiArmedBanditModel(
             explor_type=bandit_algos.ExplorationType.SQRT,
             some_constant=[1.0, 1.0, 1.0],
         ),
-        "rv_config": bandit_algos.RandomVariable(
-            rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}
-        ),
+        "rv_config": bandit_algos.RandomVariable(rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}),
     },
 )
 algo_three = MultiArmedBanditModel(
@@ -42,9 +38,7 @@ algo_three = MultiArmedBanditModel(
             explor_type=bandit_algos.ExplorationType.CONSTANT,
             some_constant=[1.0, 1.0, 1.0],
         ),
-        "rv_config": bandit_algos.RandomVariable(
-            rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}
-        ),
+        "rv_config": bandit_algos.RandomVariable(rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}),
     },
 )
 algo_four = MultiArmedBanditModel(
@@ -54,14 +48,10 @@ algo_four = MultiArmedBanditModel(
             explor_type=bandit_algos.ExplorationType.LOG,
             some_constant=[1.0, 1.0, 1.0],
         ),
-        "rv_config": bandit_algos.RandomVariable(
-            rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}
-        ),
+        "rv_config": bandit_algos.RandomVariable(rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}),
     },
 )
-compare = CompareMultiArmedBandits(
-    test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four]
-)
+compare = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four])
 metrics = compare.train_all_models(no_of_runs=100)
 compare.plot_multiple_mabs(
     named_metrics=metrics,

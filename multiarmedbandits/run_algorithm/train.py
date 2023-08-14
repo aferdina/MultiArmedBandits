@@ -1,24 +1,16 @@
 """run multiarmed bandit comparisons"""
 import argparse
 from dataclasses import dataclass
-from typing import Tuple, List, Any
-from strenum import StrEnum
+from typing import Any, List, Tuple
+
 import yaml
-from multiarmedbandits.run_algorithm.compare_models import (
-    CompareMultiArmedBandits,
-    Algorithms,
-    MultiArmedBanditModel,
-)
-import multiarmedbandits.environments as mab_envs
+from strenum import StrEnum
+
 import multiarmedbandits.algorithms as mab_algos
-from multiarmedbandits.run_algorithm.utils import (
-    MetricNames,
-)
-from multiarmedbandits.run_algorithm.config_utils import (
-    SEQUENCETAG,
-    sequence_constructor,
-    add_constructors,
-)
+import multiarmedbandits.environments as mab_envs
+from multiarmedbandits.run_algorithm.compare_models import Algorithms, CompareMultiArmedBandits, MultiArmedBanditModel
+from multiarmedbandits.run_algorithm.config_utils import SEQUENCETAG, add_constructors, sequence_constructor
+from multiarmedbandits.run_algorithm.utils import MetricNames
 
 
 class EnvAlgoConfigs(StrEnum):

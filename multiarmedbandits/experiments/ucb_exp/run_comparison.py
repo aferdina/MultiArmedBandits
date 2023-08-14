@@ -1,13 +1,5 @@
-from multiarmedbandits.run_algorithm import (
-    CompareMultiArmedBandits,
-    Algorithms,
-    MultiArmedBanditModel,
-)
-from multiarmedbandits.environments import (
-    BaseBanditEnv,
-    DistParameter,
-    ArmDistTypes,
-)
+from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv, DistParameter
+from multiarmedbandits.run_algorithm import Algorithms, CompareMultiArmedBandits, MultiArmedBanditModel
 from multiarmedbandits.run_algorithm.utils import MetricNames
 
 bandit_env = BaseBanditEnv(

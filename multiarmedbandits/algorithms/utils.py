@@ -1,6 +1,7 @@
 """ helpclasses for algorithms
 """
 from dataclasses import dataclass
+
 from strenum import StrEnum
 
 

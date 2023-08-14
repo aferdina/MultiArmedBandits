@@ -1,7 +1,7 @@
 import pytest
 
-import multiarmedbandits.environments as mab_envs
 import multiarmedbandits.algorithms as mab_algos
+import multiarmedbandits.environments as mab_envs
 
 
 @pytest.fixture(scope="module")

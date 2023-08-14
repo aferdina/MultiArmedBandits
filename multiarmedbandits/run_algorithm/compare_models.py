@@ -1,23 +1,17 @@
 """ run multiple multi armed bandit models
 """
 import os
-from typing import Any, List
 from dataclasses import dataclass
-from strenum import StrEnum
-import numpy as np
+from typing import Any, List
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.axes import Axes
-from multiarmedbandits.environments import (
-    BaseBanditEnv,
-    INFODICT,
-)
-from multiarmedbandits.run_algorithm.utils import (
-    plot_statistics,
-    MetricNames,
-    MABMetrics,
-    next_square,
-)
+from strenum import StrEnum
+
 import multiarmedbandits.algorithms.multiarmed_bandit_models as bandit_algos
+from multiarmedbandits.environments import INFODICT, BaseBanditEnv
+from multiarmedbandits.run_algorithm.utils import MABMetrics, MetricNames, next_square, plot_statistics
 
 COMPARISON_TITLE = "multiarmed bandit comparisons"
 INDEX_AXIS = "Timesteps"

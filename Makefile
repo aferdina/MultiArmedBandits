@@ -2,7 +2,7 @@ SHELL=/bin/bash
 LINT_PATHS=multiarmedbandits/ tests/ 
 
 pytest:
-	./scripts/run_tests.sh
+	$(SHELL) ./scripts/run_tests.sh
 
 lint:
 	# stop the build if there are Python syntax errors or undefined names

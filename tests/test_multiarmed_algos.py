@@ -31,7 +31,7 @@ def test_general_model(env: BaseBanditEnv, algo: mab_algo.BaseModel) -> None:
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
     assert _new_state == 0
-    assert done == False
+    assert done is False
     algo.update(chosen_arm=action, reward=reward)
     assert not np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
 
@@ -79,7 +79,7 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) 
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
     assert _new_state == 0
-    assert done == False
+    assert done is False
     algo.update(chosen_arm=action, reward=reward)
     assert not np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
 
@@ -134,7 +134,7 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) 
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
     assert _new_state == 0
-    assert done == False
+    assert done is False
     algo.update(chosen_arm=action, reward=reward)
     assert np.array_equal(algo.counts, np.array([1, 0], dtype=np.float32))
     action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])

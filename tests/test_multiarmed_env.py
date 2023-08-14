@@ -37,7 +37,7 @@ def test_env_init(
 ) -> None:
     env.reset()
     assert env.count == 0, "env count after resetting should be equal to 0"
-    assert env.done == False, "env done init as False"
+    assert env.done is False, "env done init as False"
     assert isinstance(env.max_steps, int), "max steps should be an integer"
     assert env.max_steps == max_steps
     # testing bandit statistics
@@ -59,7 +59,7 @@ def test_env_init(
     env.reset()
     # testing bandit statistics again after step
     assert env.count == 0, "env count after resetting should be equal to 0"
-    assert env.done == False, "env done init as False"
+    assert env.done is False, "env done init as False"
     assert env.bandit_statistics.max_mean == pytest.approx(max_mean)
     assert env.bandit_statistics.regret == 0
     assert env.bandit_statistics.max_mean_positions == max_mean_position
@@ -73,7 +73,7 @@ def test_env_init(
 def test_testbed_init(env: BaseBanditEnv) -> None:
     env.reset()
     assert env.count == 0, "env count after resetting should be equal to 0"
-    assert env.done == False, "env done init as False"
+    assert env.done is False, "env done init as False"
     assert env.max_steps == 10, "max steps are also 10"
     # test statistics
     assert env.bandit_statistics.regret == 0
@@ -92,6 +92,6 @@ def test_testbed_init(env: BaseBanditEnv) -> None:
     assert env.count == 5, "env count after going two steps should be equal to 2"
     env.reset()
     assert env.count == 0, "env count after resetting should be equal to 0"
-    assert env.done == False, "env done init as False"
+    assert env.done is False, "env done init as False"
     assert env.bandit_statistics.played_optimal == 0
     assert env.bandit_statistics.regret == 0

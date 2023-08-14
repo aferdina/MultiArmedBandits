@@ -1,7 +1,6 @@
 from multiarmedbandits.run_algorithm.compare_models import (
     CompareMultiArmedBandits,
     MultiArmedBanditModel,
-    NamedMABMetrics,
     Algorithms,
 )
 from multiarmedbandits.environments import (

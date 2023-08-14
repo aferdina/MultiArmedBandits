@@ -9,7 +9,6 @@ from multiarmedbandits.environments import (
     ArmDistTypes,
 )
 from multiarmedbandits.run_algorithm.utils import MetricNames
-import multiarmedbandits.algorithms.multiarmed_bandit_models as bandit_algos
 
 bandit_env = BaseBanditEnv(
     distr_params=DistParameter(

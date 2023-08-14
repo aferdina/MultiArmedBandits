@@ -69,7 +69,7 @@ class MABMetrics:
         new_no_runs = self.no_runs + other.no_runs
         new_metric = MABMetrics(horizon=self.horizon, no_runs=new_no_runs)
         for attr_name, attr_value in vars(other).items():
-            if not attr_name in ["horizon", "no_runs"]:
+            if attr_name not in ["horizon", "no_runs"]:
                 new_value = (
                     other.no_runs * attr_value + getattr(self, attr_name) * self.no_runs
                 ) / new_no_runs

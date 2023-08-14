@@ -1,5 +1,7 @@
 from typing import List
+
 import pytest
+
 from multiarmedbandits.environments import BaseBanditEnv
 
 

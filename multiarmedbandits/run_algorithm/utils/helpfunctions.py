@@ -1,11 +1,12 @@
 """ helpmodules and function for running multiarmed bandit models
 """
-from typing import Tuple
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
+from typing import Tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 from strenum import StrEnum
-import matplotlib.pyplot as plt
 
 
 class MetricNames(StrEnum):

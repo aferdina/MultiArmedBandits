@@ -1,7 +1,8 @@
 """ util classes for multiarmed bandit environments
 """
-from typing import List
 from dataclasses import dataclass
+from typing import List
+
 from strenum import StrEnum
 
 

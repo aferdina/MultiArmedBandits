@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from multiarmedbandits.environments import BaseBanditEnv, INFODICT
+import pytest
+
 import multiarmedbandits.algorithms as mab_algo
+from multiarmedbandits.environments import INFODICT, BaseBanditEnv
 
 
 @pytest.mark.parametrize(

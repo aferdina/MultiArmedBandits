@@ -1,7 +1,8 @@
-from typing import Any
-import yaml
-from enum import Enum, EnumMeta
 import functools
+from enum import Enum, EnumMeta
+from typing import Any
+
+import yaml
 
 # CONTSTANT TAGS
 YAML_TAG_APPLY_OBJECT = "tag:yaml.org,2002:python/object/apply"

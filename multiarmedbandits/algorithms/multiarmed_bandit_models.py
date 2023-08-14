@@ -1,24 +1,16 @@
 """ module contains all algorithms for multiarm bandit problems
 """
 import random
-from typing import Any, Callable
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Callable
+
 import numpy as np
 from scipy import stats
-from multiarmedbandits.utils import (
-    is_float_between_0_and_1,
-    is_positive_integer,
-    is_positive_float,
-    is_list_of_floats,
-)
-from multiarmedbandits.environments import BaseBanditEnv, ArmAttributes
-from multiarmedbandits.algorithms.utils import (
-    ExplorationType,
-    BoltzmannConfigs,
-    BaseLinesTypes,
-    GradientBaseLineAttr,
-)
+
+from multiarmedbandits.algorithms.utils import BaseLinesTypes, BoltzmannConfigs, ExplorationType, GradientBaseLineAttr
+from multiarmedbandits.environments import ArmAttributes, BaseBanditEnv
+from multiarmedbandits.utils import is_float_between_0_and_1, is_list_of_floats, is_positive_float, is_positive_integer
 
 
 @dataclass

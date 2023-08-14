@@ -1,17 +1,7 @@
-from multiarmedbandits.run_algorithm.compare_models import (
-    CompareMultiArmedBandits,
-    MultiArmedBanditModel,
-    Algorithms,
-)
-from multiarmedbandits.environments import (
-    BaseBanditEnv,
-    DistParameter,
-    ArmDistTypes,
-)
-from multiarmedbandits.algorithms import GradientBaseLineAttr, BaseLinesTypes
-from multiarmedbandits.run_algorithm.utils import (
-    MetricNames,
-)
+from multiarmedbandits.algorithms import BaseLinesTypes, GradientBaseLineAttr
+from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv, DistParameter
+from multiarmedbandits.run_algorithm.compare_models import Algorithms, CompareMultiArmedBandits, MultiArmedBanditModel
+from multiarmedbandits.run_algorithm.utils import MetricNames
 
 # Define experiment configurations
 

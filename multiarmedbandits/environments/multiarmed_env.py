@@ -1,20 +1,20 @@
 """ Include all game environments for multi armed bandits
 """
 from dataclasses import dataclass
-from typing import Dict, Tuple, Any, Callable
-from strenum import StrEnum
+from typing import Any, Callable, Dict, Tuple
+
 import numpy as np
-from multiarmedbandits.utils import (
-    is_positive_integer,
-)
+from strenum import StrEnum
+
 from multiarmedbandits.environments.utils import (
+    INFODICT,
     ArmAttributes,
+    ArmDistTypes,
     BanditStatistics,
     DistParameter,
-    ArmDistTypes,
-    INFODICT,
     GapEnvConfigs,
 )
+from multiarmedbandits.utils import is_positive_integer
 
 
 class BaseBanditEnv:

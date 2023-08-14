@@ -71,15 +71,11 @@ class GapEnvConfigs:
     distr_parameter: DistParameter | None = None
 
     def __post_init__(self):
-        mean_parameter = [
-            self.single_arm_distr.mean_parameter for _ in range(self.no_of_arms)
-        ]
+        mean_parameter = [self.single_arm_distr.mean_parameter for _ in range(self.no_of_arms)]
         mean_parameter[0] = mean_parameter[0] + self.gap_parameter
         scale_parameter = None
         if self.single_arm_distr.arm_type == ArmDistTypes.GAUSSIAN:
-            scale_parameter = [
-                self.single_arm_distr.scale_parameter for _ in range(self.no_of_arms)
-            ]
+            scale_parameter = [self.single_arm_distr.scale_parameter for _ in range(self.no_of_arms)]
         self.distr_parameter = DistParameter(
             dist_type=self.single_arm_distr.arm_type,
             mean_parameter=mean_parameter,

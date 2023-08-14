@@ -23,9 +23,7 @@ def sequence_constructor(loader: yaml.Loader, node: yaml.nodes.Node) -> Any:
     return loader.construct_sequence(node)
 
 
-def general_constructor(
-    load: yaml.Loader, node: yaml.nodes.Node, constructed_class: Any
-) -> Any:
+def general_constructor(load: yaml.Loader, node: yaml.nodes.Node, constructed_class: Any) -> Any:
     """general constructor function for any class in `ConfigEnumClasses`
 
     Args:
@@ -49,9 +47,7 @@ def general_constructor(
     return used_class
 
 
-def enum_constructor(
-    loader: yaml.Loader, node: yaml.nodes.Node, constructed_class: Enum
-) -> Any:
+def enum_constructor(loader: yaml.Loader, node: yaml.nodes.Node, constructed_class: Enum) -> Any:
     """general enum constructor function for all Enum classes in Supply Chain Config
 
     Args:

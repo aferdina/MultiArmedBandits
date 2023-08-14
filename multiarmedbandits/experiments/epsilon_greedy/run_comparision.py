@@ -17,18 +17,10 @@ test_environment = BaseBanditEnv(
 )
 
 ## Algorithms to compare
-algo_one = MultiArmedBanditModel(
-    dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.1}
-)
-algo_two = MultiArmedBanditModel(
-    dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.2}
-)
-algo_three = MultiArmedBanditModel(
-    dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.3}
-)
-algo_four = MultiArmedBanditModel(
-    dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.4}
-)
+algo_one = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.1})
+algo_two = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.2})
+algo_three = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.3})
+algo_four = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.4})
 explorethencommit_compare = CompareMultiArmedBandits(
     test_env=test_environment,
     mab_algorithms=[algo_one, algo_two, algo_three, algo_four],

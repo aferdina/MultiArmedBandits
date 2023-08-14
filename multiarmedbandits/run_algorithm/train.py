@@ -59,9 +59,9 @@ def read_mab_env_and_algos(
     )
     if configs_path.endswith(".yml") or configs_path.endswith(".yaml"):
         # Load hyperparameters from yaml file
-        with open(configs_path, "r", encoding="utf-8") as file:
+        with open(configs_path, encoding="utf-8") as file:
             experiment: dict[str, Any] = yaml.load(file, Loader=yaml.FullLoader)
-    exp_name = list(experiment.keys())[0]
+    exp_name = next(iter(experiment.keys()))
     mab_env = experiment[exp_name][EnvAlgoConfigs.MAB_ENV]
     mab_algorithm = experiment[exp_name][EnvAlgoConfigs.MAB_ALGOS]
     no_of_runs = experiment[exp_name][EnvAlgoConfigs.NO_OF_RUNS]

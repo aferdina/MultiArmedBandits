@@ -28,9 +28,7 @@ class BaseBanditEnv:
             for arms of multiarm bandit
             max_steps (int): maximal number of steps to play in the multi arm bandit
         """
-        assert is_positive_integer(
-            max_steps
-        ), "The number of steps should be a positive integer"
+        assert is_positive_integer(max_steps), "The number of steps should be a positive integer"
         self.n_arms: int = len(distr_params.mean_parameter)
         self.max_steps: int = max_steps
         self.count: int = 0
@@ -40,15 +38,11 @@ class BaseBanditEnv:
         mean_parameter = self.distr_params.mean_parameter
         self.bandit_statistics: BanditStatistics = BanditStatistics(
             max_mean=max(mean_parameter),
-            max_mean_positions=[
-                index
-                for index, value in enumerate(mean_parameter)
-                if value == max(mean_parameter)
-            ],
+            max_mean_positions=[index for index, value in enumerate(mean_parameter) if value == max(mean_parameter)],
         )
         self.bandit_statistics.reset_statistics()
 
-        setattr(self, "get_reward", self._create_reward_function())
+        self.get_reward = self._create_reward_function()
 
     def get_reward(self, action: int) -> float:
         """get reward for a given action
@@ -118,11 +112,7 @@ class BaseBanditEnv:
         if self.distr_params.dist_type == ArmDistTypes.BERNOULLI:
 
             def _get_reward(action: int) -> float:
-                reward = (
-                    1.0
-                    if np.random.uniform() < self.distr_params.mean_parameter[action]
-                    else 0.0
-                )
+                reward = 1.0 if np.random.uniform() < self.distr_params.mean_parameter[action] else 0.0
                 return reward
 
             return _get_reward
@@ -176,9 +166,7 @@ class TestBed(BaseBanditEnv):
         """
 
         rvs = getattr(np.random, self.testbed_config.type)
-        mean_parameter: np.ndarray = rvs(
-            **self.testbed_config.sample_config, size=self.testbed_config.no_arms
-        )
+        mean_parameter: np.ndarray = rvs(**self.testbed_config.sample_config, size=self.testbed_config.no_arms)
         mean_parameter = mean_parameter.tolist()
         scale_parameter = None
         if self.testbed_config.arm_type == TestBedSampleType.GAUSSIAN:
@@ -196,9 +184,7 @@ class TestBed(BaseBanditEnv):
         mean_parameter = self.distr_params.mean_parameter
         self.bandit_statistics.max_mean = max(mean_parameter)
         self.bandit_statistics.max_mean_positions = [
-            index
-            for index, value in enumerate(mean_parameter)
-            if value == self.bandit_statistics.max_mean
+            index for index, value in enumerate(mean_parameter) if value == self.bandit_statistics.max_mean
         ]
         return _state, info
 

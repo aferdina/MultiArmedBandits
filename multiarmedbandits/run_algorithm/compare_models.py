@@ -46,7 +46,7 @@ class RunMultiarmedBanditModel:
         plot_statistics(
             metrics=self.metrics,
             metrics_to_plot=metrics_to_plot,
-            title=f"{str(self.mab_algo)}",
+            title=f"{self.mab_algo!s}",
         )
 
     def update_metrics(self, metrics_to_update: MABMetrics) -> None:
@@ -236,7 +236,7 @@ class CompareMultiArmedBandits:
         axis.plot(
             index_array,
             getattr(named_metric.metrics, metric_to_plot),
-            label=f"{str(named_metric.algorithm.dist_type)}:{named_metric.algorithm.dist_params}",
+            label=f"{named_metric.algorithm.dist_type!s}:{named_metric.algorithm.dist_params}",
         )
         axis.legend()
         axis.set_ylabel(f"{metric_to_plot} over {named_metric.metrics.no_runs} runs")

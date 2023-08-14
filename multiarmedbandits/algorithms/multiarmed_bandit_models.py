@@ -221,11 +221,7 @@ class BoltzmannSimple(BaseModel):
             len(boltzmann_configs.some_constant) == self.n_arms
         ), "temperature parameter should be of same size as number of arms"
         self.some_constant = np.array(boltzmann_configs.some_constant, dtype=np.float32)
-        setattr(
-            self,
-            "calc_betas",
-            self._create_calc_betas(explor_type=boltzmann_configs.explor_type),
-        )
+        self.calc_betas = self._create_calc_betas(explor_type=boltzmann_configs.explor_type)
 
     def select_arm(self, arm_attrib: ArmAttributes | None = None) -> int:
         """choose an arm from the boltzmann distribution
@@ -382,11 +378,7 @@ class GradientBandit(BaseModel):
         assert is_positive_float(alpha), "Learning rate has to be a positive float"
 
         self.alpha: float = alpha
-        setattr(
-            self,
-            "calc_baseline",
-            self._create_calc_baseline(baseline_typ=baseline_attr.type),
-        )
+        self.calc_baseline = self._create_calc_baseline(baseline_typ=baseline_attr.type)
         self.baseline_attr = baseline_attr
 
     def _create_calc_baseline(

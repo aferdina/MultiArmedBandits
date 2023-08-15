@@ -1,3 +1,5 @@
+stages:
+  - build 
 build image:
   image: docker
   services:
@@ -6,3 +8,24 @@ build image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
+linting_and_testing:
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /\[ci skip\]/'
+      when: never
+    - exists:
+        - main
+      when: always
+  image: python:3.11
+  variables:
+    PYTHON_VERSION: '3.11'
+  script:
+    - apt-get update && apt-get install -y make
+    - apt-get install -y python3-pip
+    - pip3 install --upgrade pip
+    - pip3 install poetry
+    - poetry config virtualenvs.create false
+    - poetry install
+    - make lint
+    - make check-codestyle
+    - make pytest

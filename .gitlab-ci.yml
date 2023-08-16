@@ -1,6 +1,6 @@
 stages:
   - build
-
+  - test
 build image:
   stage: build
   image: docker
@@ -10,7 +10,8 @@ build image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
     - docker build -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
-linting_and_testing:
+
+build file:
   stage: build
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /\[ci skip\]/'
@@ -31,3 +32,25 @@ linting_and_testing:
     - make lint
     - make check-codestyle
     - make pytest
+
+test file:
+  stage: test
+  script:
+    - make pytest
+  dependencies:
+    - build file
+
+lint file:
+  stage: test
+  script:
+    - make lint
+  dependencies:
+    - build file
+
+check codestyle:
+  stage: test
+  script:
+    - make check-codestyle
+  dependencies:
+    - build file
+

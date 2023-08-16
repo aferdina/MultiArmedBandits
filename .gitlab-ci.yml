@@ -35,19 +35,19 @@ test file:
   script:
     - make pytest
   dependencies:
-    - build file
+    - build
 
 lint file:
   stage: test
   script:
     - make lint
   dependencies:
-    - build file
+    - build
 
 check codestyle:
   stage: test
   script:
     - make check-codestyle
   dependencies:
-    - build file
+    - build
 

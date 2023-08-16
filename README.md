@@ -1,3 +1,8 @@
+[![pipeline status](https://gitlab.com/aferdina/MultiArmedBandits/badges/main/pipeline.svg)](https://gitlab.com/aferdina/MultiArmedBandits/-/commits/main)
+[![coverage report](https://gitlab.com/aferdina/MultiArmedBandits/badges/main/coverage.svg)](https://gitlab.com/aferdina/MultiArmedBandits/-/commits/main)
+[![codestyle](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Latest Release](https://gitlab.com/aferdina/MultiArmedBandits/-/badges/release.svg)](https://gitlab.com/aferdina/MultiArmedBandits/-/releases)
+
 # Multiarmed Bandits<!-- omit in toc -->
 
 - [Main Features](#main-features)

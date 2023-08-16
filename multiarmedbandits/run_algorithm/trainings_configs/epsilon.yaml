@@ -1,4 +1,4 @@
-UCBExperiment:
+EpsilonGreedy:
   mab_algos:
   - !!python/object:multiarmedbandits.run_algorithm.compare_models.MultiArmedBanditModel
     dist_params:

@@ -81,13 +81,13 @@ def train() -> None:
     parser.add_argument(
         "--plot-metrics",
         type=bool,
-        default=True,
+        default=False,
         help="bool if to run the plot metrics",
     )
     parser.add_argument(
         "--save-metrics",
         type=bool,
-        default=False,
+        default=True,
         help="bool if to store the metrics",
     )
     parser.add_argument(
@@ -111,11 +111,12 @@ def train() -> None:
     if args.plot_metrics:
         compare_models.plot_multiple_mabs(named_metrics=metrics, metrics_to_plot=metrics_to_plot)
     if args.save_metrics:
-        compare_models.store_metric(
-            named_metric=metrics,
-            file_path=args.store_path,
-            metrics_to_store=metrics_to_plot,
-        )
+        for metric in metrics:
+            compare_models.store_metric(
+                named_metric=metric,
+                file_path=args.store_path,
+                metrics_to_store=metrics_to_plot,
+            )
 
 
 if __name__ == "__main__":

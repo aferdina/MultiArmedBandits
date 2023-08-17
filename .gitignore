@@ -50,6 +50,7 @@ secrets.json
 
 # Result folder
 results
+result
 
 # coverage test
 .coverage

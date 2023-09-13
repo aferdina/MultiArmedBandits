@@ -16,6 +16,7 @@ from multiarmedbandits.environments.utils import (
 )
 from multiarmedbandits.utils import is_positive_integer
 
+
 # TODO: devide in multiple files, for each environment one file
 class BaseBanditEnv:
     """class for a basic multiarmed bandit model"""

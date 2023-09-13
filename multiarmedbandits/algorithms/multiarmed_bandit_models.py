@@ -12,6 +12,7 @@ from multiarmedbandits.algorithms.utils import BaseLinesTypes, BoltzmannConfigs,
 from multiarmedbandits.environments import ArmAttributes, BaseBanditEnv
 from multiarmedbandits.utils import is_float_between_0_and_1, is_list_of_floats, is_positive_float, is_positive_integer
 
+
 # TODO: devide into different files, for each algorithm one file
 @dataclass
 class BaseModel(ABC):

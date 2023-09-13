@@ -1,5 +1,4 @@
 import pytest
-
 import multiarmedbandits.algorithms as mab_algos
 import multiarmedbandits.environments as mab_envs
 

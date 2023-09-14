@@ -23,8 +23,6 @@ build file:
     - poetry config virtualenvs.create false
     - poetry install
     - source .venv/bin/activate
-  only:
-    - main
 
 test_file:
   stage: test

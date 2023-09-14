@@ -1,23 +1,60 @@
-""" Include all game environments for multi armed bandits
+""" common class for multi armed bandit environments
 """
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 from strenum import StrEnum
 
-from multiarmedbandits.environments.utils import (
-    INFODICT,
-    ArmAttributes,
-    ArmDistTypes,
-    BanditStatistics,
-    DistParameter,
-    GapEnvConfigs,
-)
 from multiarmedbandits.utils import is_positive_integer
 
 
-# TODO: devide in multiple files, for each environment one file
+class ArmDistTypes(StrEnum):
+    """types of arm distributions"""
+
+    GAUSSIAN = "gaussian"
+    BERNOULLI = "bernoulli"
+
+
+@dataclass
+class DistParameter:
+    """distribution parameter for arms in multiarmed bandit problems"""
+
+    dist_type: ArmDistTypes
+    mean_parameter: list[float]
+    scale_parameter: list[float] | None = None
+
+
+class INFODICT(StrEnum):
+    """Enum class for information dictionary and multi armed bandit environment"""
+
+    STEPCOUNT = "count"
+    REGRET = "regret"
+    ARMATTRIBUTES = "arm_attributes"
+
+
+@dataclass
+class BanditStatistics:
+    """statistics for bandit models"""
+
+    max_mean: float  # maximal mean
+    max_mean_positions: List[int]  # position of the maximal mean
+    played_optimal: int = 0  # count number of times optimal played
+    regret: float = 0.0  # calculate regret
+
+    def reset_statistics(self) -> None:
+        """reset statistics"""
+        self.played_optimal = 0
+        self.regret = 0.0
+
+
+@dataclass
+class ArmAttributes:
+    """class to store all attributes for select arm method"""
+
+    step_in_game: int | None = None
+
+
 class BaseBanditEnv:
     """class for a basic multiarmed bandit model"""
 
@@ -128,79 +165,3 @@ class BaseBanditEnv:
 
             return _get_reward
         raise ValueError("Something went wrong")
-
-
-class TestBedSampleType(StrEnum):
-    """distribution class to sample arm parameters"""
-
-    GAUSSIAN = "normal"
-    BERNOULLI = "binomial"
-
-
-@dataclass
-class TestBedConfigs:
-    """configuration for test bed classes"""
-
-    type: TestBedSampleType
-    sample_config: dict[str, Any]
-    no_arms: int
-    arm_type: ArmDistTypes
-
-
-class TestBed(BaseBanditEnv):
-    """test bed implementation of multiarmed bandit environment from sutton"""
-
-    def __init__(self, max_steps: int, testbed_config: TestBedConfigs) -> None:
-        self.testbed_config = testbed_config
-        distr_param = self.get_distr_from_testbed()
-        super().__init__(max_steps=max_steps, distr_params=distr_param)
-        self.reset()
-
-    def get_distr_from_testbed(self) -> DistParameter:
-        """get distribution parameter from test bed configs
-
-        Args:
-            config (TestBedConfigs): configs from testbed
-
-        Returns:
-            DistParameter: distribution parameter for multiarmed bandit
-        """
-
-        rvs = getattr(np.random, self.testbed_config.type)
-        mean_parameter: np.ndarray = rvs(**self.testbed_config.sample_config, size=self.testbed_config.no_arms)
-        mean_parameter = mean_parameter.tolist()
-        scale_parameter = None
-        if self.testbed_config.arm_type == TestBedSampleType.GAUSSIAN:
-            scale_parameter = [1.0 for _ in range(self.testbed_config.no_arms)]
-        return DistParameter(
-            dist_type=self.testbed_config.arm_type,
-            mean_parameter=mean_parameter,
-            scale_parameter=scale_parameter,
-        )
-
-    def reset(self) -> Tuple[int, dict[str, Any]]:
-        _state, info = super().reset()
-        self.distr_params = self.get_distr_from_testbed()
-        self._create_reward_function()
-        mean_parameter = self.distr_params.mean_parameter
-        self.bandit_statistics.max_mean = max(mean_parameter)
-        self.bandit_statistics.max_mean_positions = [
-            index for index, value in enumerate(mean_parameter) if value == self.bandit_statistics.max_mean
-        ]
-        return _state, info
-
-
-class GapEnv(BaseBanditEnv):
-    """class for Gap enviroment from paper `Boltzmann exploration done right`"""
-
-    def __init__(self, gap_configs: GapEnvConfigs, max_steps: int) -> None:
-        super().__init__(distr_params=gap_configs.distr_parameter, max_steps=max_steps)
-
-
-__all__ = [
-    TestBed.__name__,
-    BaseBanditEnv.__name__,
-    TestBedConfigs.__name__,
-    TestBedSampleType.__name__,
-    GapEnv.__name__,
-]

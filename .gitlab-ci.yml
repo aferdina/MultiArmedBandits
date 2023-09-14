@@ -21,12 +21,14 @@ build file:
       when: always
   image: python:3.11
   variables:
-    PYTHON_VERSION: '3.11'
+    PYTHON_VERSION: "3.11"
   script:
     - pip3 install poetry
     - poetry config virtualenvs.create false
     - poetry install
     - source .venv/bin/activate
+  only:
+    - main
 
 test_file:
   stage: test
@@ -40,6 +42,8 @@ test_file:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+  only:
+    - main
 
 lint_file:
   stage: test
@@ -47,6 +51,8 @@ lint_file:
     - make lint
   dependencies:
     - build file
+  only:
+    - main
 
 check codestyle:
   stage: test
@@ -54,4 +60,5 @@ check codestyle:
     - make check-codestyle
   dependencies:
     - build file
-
+  only:
+    - main

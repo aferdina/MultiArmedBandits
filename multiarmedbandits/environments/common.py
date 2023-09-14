@@ -1,9 +1,11 @@
 """ common class for multi armed bandit environments
 """
 from dataclasses import dataclass
-from typing import List, Tuple, Callable, Dict, Any
-from strenum import StrEnum
+from typing import Any, Callable, Dict, List, Tuple
+
 import numpy as np
+from strenum import StrEnum
+
 from multiarmedbandits.utils import is_positive_integer
 
 

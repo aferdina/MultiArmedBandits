@@ -1,5 +1,5 @@
 # pylint: disable-all
-from .common import INFODICT, BaseBanditEnv, BanditStatistics, ArmAttributes, DistParameter, ArmDistTypes
+from .common import INFODICT, ArmAttributes, ArmDistTypes, BanditStatistics, BaseBanditEnv, DistParameter
 from .gabenv import GapEnv, GapEnvConfigs, SingleArmParams
 from .testbedenv import TestBed, TestBedConfigs, TestBedSampleType
 

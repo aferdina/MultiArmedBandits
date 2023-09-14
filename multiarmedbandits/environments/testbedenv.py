@@ -6,7 +6,7 @@ from typing import Any, Tuple
 import numpy as np
 from strenum import StrEnum
 
-from .common import BaseBanditEnv, ArmDistTypes, DistParameter
+from .common import ArmDistTypes, BaseBanditEnv, DistParameter
 
 
 class TestBedSampleType(StrEnum):

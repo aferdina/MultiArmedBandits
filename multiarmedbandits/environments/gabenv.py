@@ -2,7 +2,8 @@
 """
 
 from dataclasses import dataclass
-from .common import ArmDistTypes, DistParameter, BaseBanditEnv
+
+from .common import ArmDistTypes, BaseBanditEnv, DistParameter
 
 
 @dataclass

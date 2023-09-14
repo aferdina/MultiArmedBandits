@@ -3,6 +3,12 @@ stages:
   - test
 build image:
   stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: never
+    - exists:
+        - main
+      when: always
   image: docker
   services:
     - docker:dind
@@ -14,7 +20,7 @@ build image:
 build file:
   stage: build
   rules:
-    - if: '$CI_COMMIT_MESSAGE =~ /\[ci skip\]/'
+    - if: $CI_COMMIT_BRANCH == "main"
       when: never
     - exists:
         - main

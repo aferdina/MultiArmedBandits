@@ -8,9 +8,9 @@ from strenum import StrEnum
 
 import multiarmedbandits.algorithms as mab_algos
 import multiarmedbandits.environments as mab_envs
-from multiarmedbandits.run_algorithm.compare_models import Algorithms, CompareMultiArmedBandits, MultiArmedBanditModel
+from multiarmedbandits.run_algorithm.compare_models import CompareMultiArmedBandits, MultiArmedBanditModel
 from multiarmedbandits.run_algorithm.config_utils import SEQUENCETAG, add_constructors, sequence_constructor
-from multiarmedbandits.run_algorithm.utils import MetricNames
+from multiarmedbandits.run_algorithm.metrics import Algorithms, MetricNames
 
 
 class EnvAlgoConfigs(StrEnum):

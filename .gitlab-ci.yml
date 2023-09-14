@@ -5,10 +5,6 @@ build image:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-      when: never
-    - exists:
-        - main
-      when: always
   image: docker
   services:
     - docker:dind
@@ -21,10 +17,6 @@ build file:
   stage: build
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-      when: never
-    - exists:
-        - main
-      when: always
   image: python:3.11
   variables:
     PYTHON_VERSION: '3.11'

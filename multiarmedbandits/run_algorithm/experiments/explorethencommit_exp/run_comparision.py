@@ -1,8 +1,5 @@
-"""run experiments for epsilon greedy algorithm"""
-
 from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv, DistParameter
-from multiarmedbandits.run_algorithm.compare_models import Algorithms, CompareMultiArmedBandits, MultiArmedBanditModel
-from multiarmedbandits.run_algorithm.utils import MetricNames
+from multiarmedbandits.run_algorithm import Algorithms, CompareMultiArmedBandits, MetricNames, MultiArmedBanditModel
 
 # Define experiment configurations
 
@@ -17,10 +14,10 @@ test_environment = BaseBanditEnv(
 )
 
 ## Algorithms to compare
-algo_one = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.1})
-algo_two = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.2})
-algo_three = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.3})
-algo_four = MultiArmedBanditModel(dist_type=Algorithms.EPSILONGREEDY, dist_params={"epsilon": 0.4})
+algo_one = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 10})
+algo_two = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 50})
+algo_three = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 100})
+algo_four = MultiArmedBanditModel(dist_type=Algorithms.EXPLORRETHENCOMMIT, dist_params={"explore": 200})
 explorethencommit_compare = CompareMultiArmedBandits(
     test_env=test_environment,
     mab_algorithms=[algo_one, algo_two, algo_three, algo_four],

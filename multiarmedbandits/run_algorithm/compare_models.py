@@ -1,20 +1,70 @@
 """ run multiple multi armed bandit models
 """
+import math
 import os
-from dataclasses import dataclass
-from typing import Any, List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
-from strenum import StrEnum
 
 import multiarmedbandits.algorithms as bandit_algos
 from multiarmedbandits.environments import INFODICT, BaseBanditEnv
-from multiarmedbandits.run_algorithm.utils import MABMetrics, MetricNames, next_square, plot_statistics
+
+from .metrics import MABMetrics, MetricNames, MultiArmedBanditModel, NamedMABMetrics
 
 COMPARISON_TITLE = "multiarmed bandit comparisons"
 INDEX_AXIS = "Timesteps"
+
+
+def plot_statistics(metrics: MABMetrics, metrics_to_plot: list[MetricNames], title: str = "") -> None:
+    """plot metrics from running multiarmed agent module
+
+    Args:
+        metrics (MABMetrics): metrics to plot
+        metrics_to_plot (list[MetricNames]): list of keys to plot
+    """
+    no_of_metrics = len(metrics_to_plot)
+    _rows_square, rows = next_square(number=no_of_metrics)
+    cols = rows if rows * (rows - 1) < no_of_metrics else rows - 1
+    fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
+    fig.suptitle(title, fontsize=16)
+    pos = 0
+    index_array = np.arange(metrics.horizon)
+    if axs.ndim == 1:
+        for row in range(rows):
+            axs[row].plot(index_array, getattr(metrics, metrics_to_plot[pos]), color="red")
+            axs[row].set_title(f"{metrics_to_plot[pos]}")
+            pos += 1
+        plt.show()
+    else:
+        for row in range(rows):
+            for col in range(cols):
+                if pos < no_of_metrics:
+                    axis = axs[row, col]
+                    axis.plot(
+                        index_array,
+                        getattr(metrics, metrics_to_plot[pos]),
+                    )
+                    axis.set_title(f"{metrics_to_plot[pos]}")
+                    pos += 1
+
+        plt.show()
+
+
+def next_square(number: int) -> Tuple[int, int]:
+    """get next square of a number
+
+    Args:
+        number (int): number to check
+
+    Returns:
+        int: next square of a number
+    """
+    square_root = math.sqrt(number)
+    next_integer = math.ceil(square_root)
+    next_square_number = next_integer**2
+    return next_square_number, next_integer
 
 
 class RunMultiarmedBanditModel:
@@ -97,36 +147,6 @@ class RunMultiarmedBanditModel:
             metrics_to_add (MABMetrics): metrics to add
         """
         self.metrics = self.metrics + metrics_to_add
-
-
-class Algorithms(StrEnum):
-    """algorithm to use for mab environments"""
-
-    EPSILONGREEDY = "EpsilonGreedy"
-    EXPLORRETHENCOMMIT = "ExploreThenCommit"
-    UCBALGO = "UCB"
-    BOLTZMANNSIMPLE = "BoltzmannSimple"
-    BOLTZMANNRANDOM = "BoltzmannGeneral"
-    GRADIENTBANDIT = "GradientBandit"
-
-    def __str__(self):
-        return self.name.capitalize()
-
-
-@dataclass
-class MultiArmedBanditModel:
-    """class to create a multiarmed bandit model"""
-
-    dist_type: Algorithms
-    dist_params: dict[str, Any]
-
-
-@dataclass
-class NamedMABMetrics:
-    """metrics for a multiarmed bandit model including the algorithm with parameters"""
-
-    algorithm: MultiArmedBanditModel
-    metrics: MABMetrics
 
 
 class CompareMultiArmedBandits:
@@ -262,12 +282,3 @@ class CompareMultiArmedBandits:
             header=header,
             comments="",
         )
-
-
-__all__ = [
-    RunMultiarmedBanditModel.__name__,
-    Algorithms.__name__,
-    MultiArmedBanditModel.__name__,
-    NamedMABMetrics.__name__,
-    CompareMultiArmedBandits.__name__,
-]

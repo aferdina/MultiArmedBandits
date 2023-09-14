@@ -28,6 +28,8 @@ build file:
 
 test_file:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   script:
     - make pytest
   dependencies:
@@ -41,6 +43,8 @@ test_file:
 
 lint_file:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   script:
     - make lint
   dependencies:
@@ -48,6 +52,8 @@ lint_file:
 
 check codestyle:
   stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   script:
     - make check-codestyle
   dependencies:

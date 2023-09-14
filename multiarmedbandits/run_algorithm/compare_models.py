@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib.axes import Axes
 from strenum import StrEnum
 
-import multiarmedbandits.algorithms.multiarmed_bandit_models as bandit_algos
+import multiarmedbandits.algorithms as bandit_algos
 from multiarmedbandits.environments import INFODICT, BaseBanditEnv
 from multiarmedbandits.run_algorithm.utils import MABMetrics, MetricNames, next_square, plot_statistics
 

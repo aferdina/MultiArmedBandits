@@ -43,6 +43,7 @@ ruff = "^0.0.284"
 black = "^23.7.0"
 isort = "^5.12.0"
 pytest-cov = "^4.1.0"
+pylint = "^2.17.5"
 
 [build-system]
 requires = ["poetry-core"]

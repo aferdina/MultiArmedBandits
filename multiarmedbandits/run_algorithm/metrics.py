@@ -1,12 +1,13 @@
-""" helpmodules and function for running multiarmed bandit models
+""" define metrics for multiarmed bandit algorithms
 """
-import math
-from dataclasses import dataclass
-from typing import Tuple
 
-import matplotlib.pyplot as plt
+from dataclasses import dataclass
+from typing import Any
+
 import numpy as np
 from strenum import StrEnum
+
+from ..algorithms import UCB, BoltzmannGeneral, BoltzmannSimple, EpsilonGreedy, ExploreThenCommit, GradientBandit
 
 
 class MetricNames(StrEnum):
@@ -74,59 +75,31 @@ class MABMetrics:
         return new_metric
 
 
-def plot_statistics(metrics: MABMetrics, metrics_to_plot: list[MetricNames], title: str = "") -> None:
-    """plot metrics from running multiarmed agent module
+class Algorithms(StrEnum):
+    """algorithm to use for mab environments"""
 
-    Args:
-        metrics (MABMetrics): metrics to plot
-        metrics_to_plot (list[MetricNames]): list of keys to plot
-    """
-    no_of_metrics = len(metrics_to_plot)
-    _rows_square, rows = next_square(number=no_of_metrics)
-    cols = rows if rows * (rows - 1) < no_of_metrics else rows - 1
-    fig, axs = plt.subplots(cols, rows, figsize=(10, 8))
-    fig.suptitle(title, fontsize=16)
-    pos = 0
-    index_array = np.arange(metrics.horizon)
-    if axs.ndim == 1:
-        for row in range(rows):
-            axs[row].plot(index_array, getattr(metrics, metrics_to_plot[pos]), color="red")
-            axs[row].set_title(f"{metrics_to_plot[pos]}")
-            pos += 1
-        plt.show()
-    else:
-        for row in range(rows):
-            for col in range(cols):
-                if pos < no_of_metrics:
-                    axis = axs[row, col]
-                    axis.plot(
-                        index_array,
-                        getattr(metrics, metrics_to_plot[pos]),
-                    )
-                    axis.set_title(f"{metrics_to_plot[pos]}")
-                    pos += 1
+    EPSILONGREEDY = EpsilonGreedy.__name__
+    EXPLORRETHENCOMMIT = ExploreThenCommit.__name__
+    UCBALGO = UCB.__name__
+    BOLTZMANNSIMPLE = BoltzmannSimple.__name__
+    BOLTZMANNRANDOM = BoltzmannGeneral.__name__
+    GRADIENTBANDIT = GradientBandit.__name__
 
-        plt.show()
+    def __str__(self):
+        return self.name.capitalize()
 
 
-def next_square(number: int) -> Tuple[int, int]:
-    """get next square of a number
+@dataclass
+class MultiArmedBanditModel:
+    """class to create a multiarmed bandit model"""
 
-    Args:
-        number (int): number to check
-
-    Returns:
-        int: next square of a number
-    """
-    square_root = math.sqrt(number)
-    next_integer = math.ceil(square_root)
-    next_square_number = next_integer**2
-    return next_square_number, next_integer
+    dist_type: Algorithms
+    dist_params: dict[str, Any]
 
 
-__all__ = [
-    MetricNames.__name__,
-    MABMetrics.__name__,
-    plot_statistics.__name__,
-    next_square.__name__,
-]
+@dataclass
+class NamedMABMetrics:
+    """metrics for a multiarmed bandit model including the algorithm with parameters"""
+
+    algorithm: MultiArmedBanditModel
+    metrics: MABMetrics

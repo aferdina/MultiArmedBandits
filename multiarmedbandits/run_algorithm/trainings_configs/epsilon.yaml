@@ -1,27 +1,27 @@
 EpsilonGreedy:
   mab_algos:
-  - !!python/object:multiarmedbandits.run_algorithm.compare_models.MultiArmedBanditModel
+  - !!python/object:multiarmedbandits.run_algorithm.metrics.MultiArmedBanditModel
     dist_params:
       epsilon: 0.1
-    dist_type: &id001 !!python/object/apply:multiarmedbandits.run_algorithm.compare_models.Algorithms 'EpsilonGreedy'
-  - !!python/object:multiarmedbandits.run_algorithm.compare_models.MultiArmedBanditModel
+    dist_type: &id001 !!python/object/apply:multiarmedbandits.run_algorithm.metrics.Algorithms 'EpsilonGreedy'
+  - !!python/object:multiarmedbandits.run_algorithm.metrics.MultiArmedBanditModel
     dist_params:
       epsilon: 0.2
     dist_type: *id001
-  - !!python/object:multiarmedbandits.run_algorithm.compare_models.MultiArmedBanditModel
+  - !!python/object:multiarmedbandits.run_algorithm.metrics.MultiArmedBanditModel
     dist_params:
       epsilon: 0.3
     dist_type: *id001
-  mab_env: !!python/object:multiarmedbandits.environments.multiarmed_env.BaseBanditEnv
-    distr_params: !!python/object:multiarmedbandits.environments.utils.DistParameter
-      dist_type: !!python/object/apply:multiarmedbandits.environments.utils.ArmDistTypes 'bernoulli'
+  mab_env: !!python/object:multiarmedbandits.environments.common.BaseBanditEnv
+    distr_params: !!python/object:multiarmedbandits.environments.common.DistParameter
+      dist_type: !!python/object/apply:multiarmedbandits.environments.common.ArmDistTypes 'bernoulli'
       mean_parameter:
       - 0.1
       - 0.2
       scale_parameter: null
     max_steps: 10000
   metrics_to_plot:
-  - !!python/object/apply:multiarmedbandits.run_algorithm.utils.helpfunctions.MetricNames 'average_reward'
-  - !!python/object/apply:multiarmedbandits.run_algorithm.utils.helpfunctions.MetricNames 'cum_reward'
-  - !!python/object/apply:multiarmedbandits.run_algorithm.utils.helpfunctions.MetricNames 'optim_percentage'
+  - !!python/object/apply:multiarmedbandits.run_algorithm.metrics.MetricNames 'average_reward'
+  - !!python/object/apply:multiarmedbandits.run_algorithm.metrics.MetricNames 'cum_reward'
+  - !!python/object/apply:multiarmedbandits.run_algorithm.metrics.MetricNames 'optim_percentage'
   no_of_runs: 1000

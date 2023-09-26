@@ -56,6 +56,7 @@ result
 .coverage
 htmlcov
 coverage.xml
+coverage_html_report
 # Ignore dependencies (e.g., created by Poetry, pipenv, etc.)
 # Uncomment if using a dependency management tool like Poetry, pipenv, etc.
 # poetry.lock

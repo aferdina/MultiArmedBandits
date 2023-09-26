@@ -25,6 +25,11 @@ check-codestyle:
 
 commit-checks: format type lint
 
+fix-codestyle:
+	# Sort imports
+	isort ${LINT_PATHS}
+	# Reformat using black
+	black ${LINT_PATHS}
 
 # Test PyPi package release
 # adapt to poetry

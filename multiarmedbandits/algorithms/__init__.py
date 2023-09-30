@@ -6,6 +6,7 @@ from .epsilongreedy import EpsilonGreedy
 from .expthencommit import ExploreThenCommit
 from .gradientbandit import BaseLinesTypes, GradientBandit, GradientBaseLineAttr
 from .ucb import UCB
+from .thompson import ThompsonSampling
 
 __all__ = [
     RandomVariable.__name__,
@@ -21,4 +22,5 @@ __all__ = [
     BaseLinesTypes.__name__,
     GradientBaseLineAttr.__name__,
     UCB.__name__,
+    ThompsonSampling.__name__,
 ]

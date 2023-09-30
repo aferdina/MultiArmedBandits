@@ -10,9 +10,9 @@ class ThompsonSampling(BaseModel):
     """
     class for thompson sampling algorithm
     """
-    def __init__(self, bandit: BaseBanditEnv, config: Dict[str, Any]) -> None:
-        super().__init__(bandit)
-        self.posterior = PosteriorFactory(bandit).create(config)
+    def __init__(self, bandit_env: BaseBanditEnv, config: Dict[str, Any]) -> None:
+        super().__init__(bandit_env)
+        self.posterior = PosteriorFactory(bandit_env).create(config)
 
     def select_arm(self, arm_attrib: ArmAttributes | None):
         sampled_probs = self.posterior.sample()

@@ -64,3 +64,13 @@ def epsilon_greedy(bernoulli_env) -> mab_algos.EpsilonGreedy:
 @pytest.fixture(scope="module")
 def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
     return mab_algos.ExploreThenCommit(explore=1, bandit_env=bernoulli_env)
+
+
+@pytest.fixture(scope="module")
+def ucb_alpha(bernoulli_env) -> mab_algos.UCBAlpha:
+    return mab_algos.UCBAlpha(bandit_env=bernoulli_env, alpha=2.0)
+
+
+@pytest.fixture(scope="module")
+def lecture_ucb(bernoulli_env) -> mab_algos.LectureUCB:
+    return mab_algos.LectureUCB(bandit_env=bernoulli_env, delta=0.1)

@@ -6,7 +6,7 @@ from abc import abstractmethod
 import numpy as np
 
 from ..environments import ArmAttributes, BaseBanditEnv
-from ..utils import is_float_between_0_and_1
+from ..utils import is_float_between_0_and_1, is_positive_float
 from .common import BaseModel
 
 
@@ -58,7 +58,7 @@ class UCB(BaseModel):
         self.ucb_values = np.full(self.n_arms, np.inf, dtype=np.float32)
 
 
-class Lecture_UCB(UCB):
+class LectureUCB(UCB):
     """UCB algorithm from RL lecture"""
 
     def __init__(self, bandit_env: BaseBanditEnv, delta: float):
@@ -68,3 +68,21 @@ class Lecture_UCB(UCB):
 
     def _calc_bonus(self, chosen_arm: int) -> list[float]:
         return np.sqrt(-2 * np.log(self.delta) / self.counts[chosen_arm])
+
+
+class UCBAlpha(UCB):
+    """UCB(alpha) algorithm"""
+
+    def __init__(self, bandit_env: BaseBanditEnv, alpha: float):
+        super().__init__(bandit_env=bandit_env)
+        assert is_positive_float(alpha), f"{alpha} should be a postive float"
+        self.alpha = alpha
+
+    def _calc_bonus(self, chosen_arm: int) -> list[float]:
+        """calculate the exploration bonus of the UCB_Alpha algorithm.
+
+        Returns:
+            list[float]: exploration bonus
+        """
+        bonus = np.sqrt(self.alpha * np.log(sum(self.counts)) / (2 * self.counts[chosen_arm]))
+        return bonus

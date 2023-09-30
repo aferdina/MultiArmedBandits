@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 from strenum import StrEnum
 
-from ..algorithms import UCB, BoltzmannGeneral, BoltzmannSimple, EpsilonGreedy, ExploreThenCommit, GradientBandit
+from ..algorithms import UCB, BoltzmannGeneral, BoltzmannSimple, EpsilonGreedy, ExploreThenCommit, GradientBandit, ThompsonSampling
 
 
 class MetricNames(StrEnum):
@@ -84,6 +84,7 @@ class Algorithms(StrEnum):
     BOLTZMANNSIMPLE = BoltzmannSimple.__name__
     BOLTZMANNRANDOM = BoltzmannGeneral.__name__
     GRADIENTBANDIT = GradientBandit.__name__
+    THOMPSON = ThompsonSampling.__name__
 
     def __str__(self):
         return self.name.capitalize()

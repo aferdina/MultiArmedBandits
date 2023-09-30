@@ -103,11 +103,12 @@ class PosteriorFactory():
         """
         assert "prior" in config, "You have to provide a prior."
         prior = config["prior"]
-        assert isinstance(prior, PriorType), "Provided prior is not known."
         if prior == PriorType.BETA:
             return BetaPosterior(self.n_arms, config=config)
         if prior == PriorType.NORMAL:
             raise NotImplementedError("This prior is not yet implemented.")
         if prior == PriorType.NIG:
             raise NotImplementedError("This prior is not yet implemented.")
+        else:
+            raise AssertionError("Provided prior is not known.")
         

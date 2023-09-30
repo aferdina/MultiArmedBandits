@@ -124,12 +124,12 @@ class BoltzmannSimple(BaseModel):
             case ExplorationType.BGE:
 
                 def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
-                    _square_counts = np.sqrt(self.counts)
+                    _sqrt_counts = np.sqrt(self.counts)
                     result = np.divide(
                         self.some_constant,
-                        _square_counts,
+                        _sqrt_counts,
                         out=np.zeros_like(self.some_constant),
-                        where=_square_counts != 0,
+                        where=_sqrt_counts != 0,
                     )
                     result[result == 0.0] = np.inf
                     return result

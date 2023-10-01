@@ -90,8 +90,6 @@ class BoltzmannSimple(BaseModel):
             case ExplorationType.SQRT:
 
                 def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                    if np.log(1 + arm_attrib.step_in_game) == 0.0:
-                        return np.full_like(self.values, np.inf)
                     return self.some_constant**2 / np.sqrt(1 + arm_attrib.step_in_game)
 
                 return _calc_betas

@@ -9,9 +9,7 @@ from multiarmedbandits.environments import INFODICT, BaseBanditEnv
 @pytest.mark.parametrize(
     "env, algo",
     [
-        (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
-            pytest.lazy_fixture("epsilon_greedy")),
+        (pytest.lazy_fixture("bernoulli_env_2arms"), pytest.lazy_fixture("epsilon_greedy")),
         (
             pytest.lazy_fixture("bernoulli_env_2arms"),
             pytest.lazy_fixture("explore_then_commit"),
@@ -167,13 +165,12 @@ def test_boltzmann_const_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimpl
 
     # test calc_betas - CONSTANT
     betas = algo.calc_betas()
-    assert np.array_equal(betas, np.array(2*[.5**2], dtype=np.float32))
+    assert np.array_equal(betas, np.array(2 * [0.5**2], dtype=np.float32))
 
-    
     # test environment step for given action
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
-    
+
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
@@ -185,7 +182,6 @@ def test_boltzmann_const_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimpl
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
-
 
 
 @pytest.mark.parametrize(
@@ -208,16 +204,16 @@ def test_boltzmann_log_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
 
     # test calc_betas 1 - LOG
     step_in_game = 0
-    some_constant = np.array(2*[.5])
+    some_constant = np.array(2 * [0.5])
     values = algo.values
     betas = algo.calc_betas(arm_attrib=info[INFODICT.ARMATTRIBUTES])
     assert np.log(1 + step_in_game) == 0
     assert np.array_equal(betas, np.full_like(values, np.inf))
-    
+
     # test environment step for given action
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
-    
+
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
@@ -235,7 +231,6 @@ def test_boltzmann_log_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
-
 
 
 @pytest.mark.parametrize(
@@ -258,15 +253,15 @@ def test_boltzmann_sqrt_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple
 
     # test calc_betas 1 - SQRT
     step_in_game = 0
-    some_constant = np.array(2*[.5])
+    some_constant = np.array(2 * [0.5])
     values = algo.values
     betas = algo.calc_betas(arm_attrib=info[INFODICT.ARMATTRIBUTES])
     assert np.array_equal(betas, np.array(some_constant**2 / np.sqrt(1 + step_in_game), dtype=np.float32))
-    
+
     # test environment step for given action
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
-    
+
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
@@ -284,7 +279,6 @@ def test_boltzmann_sqrt_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
-
 
 
 @pytest.mark.parametrize(
@@ -306,15 +300,15 @@ def test_boltzmann_ucb_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     assert action in range(2)
 
     # test calc_betas 1 - UCB
-    some_constant = np.array(2*[.5])
+    some_constant = np.array(2 * [0.5])
     values = algo.values
     betas = algo.calc_betas(arm_attrib=info[INFODICT.ARMATTRIBUTES])
     assert np.array_equal(betas, np.full_like(values, np.inf))
-    
+
     # test environment step for given action
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
-    
+
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
@@ -325,10 +319,7 @@ def test_boltzmann_ucb_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     # test calc_betas 2 - UCB
     step_in_game = 1
     expected_result = np.divide(
-        some_constant,
-        np.sqrt(algo.counts),
-        out=np.zeros_like(some_constant),
-        where=np.sqrt(algo.counts) != 0
+        some_constant, np.sqrt(algo.counts), out=np.zeros_like(some_constant), where=np.sqrt(algo.counts) != 0
     )
     expected_result = expected_result * np.sqrt(np.log(1 + step_in_game))
     expected_result[expected_result == 0.0] = np.inf
@@ -340,7 +331,6 @@ def test_boltzmann_ucb_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
-
 
 
 @pytest.mark.parametrize(
@@ -362,15 +352,14 @@ def test_boltzmann_bge_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     assert action in range(2)
 
     # test calc_betas 1 - BGE
-    some_constant = np.array(2*[.5])
+    some_constant = np.array(2 * [0.5])
     betas = algo.calc_betas()
-    assert np.array_equal(betas, np.array(2*[np.inf], dtype=np.float32))
+    assert np.array_equal(betas, np.array(2 * [np.inf], dtype=np.float32))
 
-    
     # test environment step for given action
     _new_state, reward, done, info = env.step(action=action)
     assert reward in [1.0, 0.0]
-    
+
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
@@ -380,10 +369,7 @@ def test_boltzmann_bge_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
 
     # test calc_betas 2 - BGE
     expected_result = np.divide(
-        some_constant,
-        np.sqrt(algo.counts),
-        out=np.zeros_like(some_constant),
-        where=np.sqrt(algo.counts) != 0
+        some_constant, np.sqrt(algo.counts), out=np.zeros_like(some_constant), where=np.sqrt(algo.counts) != 0
     )
     expected_result[expected_result == 0.0] = np.inf
 

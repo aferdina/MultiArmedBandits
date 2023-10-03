@@ -9,7 +9,7 @@ from multiarmedbandits.environments import BaseBanditEnv
     "env, max_steps, max_mean, max_mean_position",
     [
         (
-            pytest.lazy_fixture("bernoulli_env"),
+            pytest.lazy_fixture("bernoulli_env_2arms"),
             10,
             0.7,
             [

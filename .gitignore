@@ -12,7 +12,6 @@ build/
 *.egg-info/
 
 # Python Virtual Environment
-.venv/
 venv/
 env/
 *.env

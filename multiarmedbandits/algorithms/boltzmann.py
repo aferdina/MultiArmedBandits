@@ -79,60 +79,57 @@ class BoltzmannSimple(BaseModel):
             Callable[[ArmAttributes], float]: method to calculate beta values for boltzmann
             algorithm
         """
-        match explor_type:
-            case ExplorationType.CONSTANT:
+        if explor_type == ExplorationType.CONSTANT:
 
-                def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
-                    return self.some_constant**2
+            def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
+                return self.some_constant**2
 
-                return _calc_betas
+            return _calc_betas
 
-            case ExplorationType.SQRT:
+        if explor_type == ExplorationType.SQRT:
 
-                def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                    return self.some_constant**2 / np.sqrt(1 + arm_attrib.step_in_game)
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.sqrt(1 + arm_attrib.step_in_game)
 
-                return _calc_betas
+            return _calc_betas
 
-            case ExplorationType.LOG:
+        if explor_type == ExplorationType.LOG:
 
-                def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                    if np.log(1 + arm_attrib.step_in_game) == 0.0:
-                        return np.full_like(self.values, np.inf)
-                    return self.some_constant**2 / np.log(1 + arm_attrib.step_in_game)
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                if np.log(1 + arm_attrib.step_in_game) == 0.0:
+                    return np.full_like(self.values, np.inf)
+                return self.some_constant**2 / np.log(1 + arm_attrib.step_in_game)
 
-                return _calc_betas
+            return _calc_betas
+        if explor_type == ExplorationType.UCB:
 
-            case ExplorationType.UCB:
+            def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result = result * np.log(1 + arm_attrib.step_in_game)
+                result[result == 0.0] = np.inf
+                return result
 
-                def _calc_betas(arm_attrib: ArmAttributes) -> np.ndarray:
-                    _sqrt_counts = np.sqrt(self.counts)
-                    result = np.divide(
-                        self.some_constant,
-                        _sqrt_counts,
-                        out=np.zeros_like(self.some_constant),
-                        where=_sqrt_counts != 0,
-                    )
-                    result = result * np.sqrt(np.log(1 + arm_attrib.step_in_game))
-                    result[result == 0.0] = np.inf
-                    return result
+            return _calc_betas
+        if explor_type == ExplorationType.BGE:
 
-                return _calc_betas
+            def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
+                _square_counts = np.sqrt(self.counts)
+                result = np.divide(
+                    self.some_constant,
+                    _square_counts,
+                    out=np.zeros_like(self.some_constant),
+                    where=_square_counts != 0,
+                )
+                result[result == 0.0] = np.inf
+                return result
 
-            case ExplorationType.BGE:
-
-                def _calc_betas(arm_attrib: ArmAttributes | None = None) -> np.ndarray:
-                    _sqrt_counts = np.sqrt(self.counts)
-                    result = np.divide(
-                        self.some_constant,
-                        _sqrt_counts,
-                        out=np.zeros_like(self.some_constant),
-                        where=_sqrt_counts != 0,
-                    )
-                    result[result == 0.0] = np.inf
-                    return result
-
-                return _calc_betas
-
-            case _:
-                raise NotImplementedError(f"{explor_type} not implemented yet")
+            return _calc_betas
+        raise NotImplementedError(f"{explor_type} not implemented yet")

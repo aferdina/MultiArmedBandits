@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-from unittest.mock import MagicMock
 
 import multiarmedbandits.algorithms as mab_algo
 from multiarmedbandits.environments import INFODICT, BaseBanditEnv
@@ -122,7 +121,7 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) 
         ),
     ],
 )
-def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) -> None:
+def test_epsilon_greedy_model_two(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
     algo.reset()
@@ -254,7 +253,6 @@ def test_boltzmann_sqrt_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple
     # test calc_betas 1 - SQRT
     step_in_game = 0
     some_constant = np.array(2 * [0.5])
-    values = algo.values
     betas = algo.calc_betas(arm_attrib=info[INFODICT.ARMATTRIBUTES])
     assert np.array_equal(betas, np.array(some_constant**2 / np.sqrt(1 + step_in_game), dtype=np.float32))
 
@@ -271,7 +269,6 @@ def test_boltzmann_sqrt_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple
 
     # test calc_betas 2 - SQRT
     step_in_game = 1
-    values = algo.values
     betas = algo.calc_betas(arm_attrib=info[INFODICT.ARMATTRIBUTES])
     assert np.array_equal(betas, np.array(some_constant**2 / np.sqrt(1 + step_in_game), dtype=np.float32))
 

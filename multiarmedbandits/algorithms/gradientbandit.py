@@ -10,7 +10,7 @@ from strenum import StrEnum
 
 from ..environments import ArmAttributes, BaseBanditEnv
 from ..utils import is_positive_float
-from .common import BaseModel
+from .common import BaseLearningRule
 
 
 class BaseLinesTypes(StrEnum):
@@ -34,7 +34,7 @@ class GradientBaseLineAttr:
         self.step_count = 0
 
 
-class GradientBandit(BaseModel):
+class GradientBandit(BaseLearningRule):
     """gradient bandit algorithm"""
 
     def __init__(

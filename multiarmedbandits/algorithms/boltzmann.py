@@ -9,7 +9,7 @@ from strenum import StrEnum
 
 from ..environments import ArmAttributes, BaseBanditEnv
 from ..utils import is_list_of_floats
-from .common import BaseModel
+from .common import BaseLearningRule
 
 
 class ExplorationType(StrEnum):
@@ -30,7 +30,7 @@ class BoltzmannConfigs:
     some_constant: list[float]
 
 
-class BoltzmannSimple(BaseModel):
+class BoltzmannSimple(BaseLearningRule):
     """boltzmann exploration algorithm also known as softmax bandit"""
 
     def __init__(self, boltzmann_configs: BoltzmannConfigs, bandit_env: BaseBanditEnv):

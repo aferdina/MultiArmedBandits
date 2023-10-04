@@ -2,7 +2,7 @@
 *.pyc
 *.pyo
 __pycache__
-
+**.DS_Store
 # Compiled C extension files
 *.so
 

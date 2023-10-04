@@ -24,14 +24,14 @@ class EnvAlgoConfigs(StrEnum):
 
 def read_mab_env_and_algos(
     configs_path: str,
-) -> Tuple[str, mab_envs.BaseBanditEnv, List[mab_algos.BaseModel], int, List[MetricNames]]:
+) -> Tuple[str, mab_envs.BaseBanditEnv, List[mab_algos.BaseLearningRule], int, List[MetricNames]]:
     """read multi armed bandit environment and multiarmed bandit models
 
     Args:
         configs_path (str): path to configs for multiarmed bandit models
 
     Returns:
-        Tuple[mab_envs.BaseBanditEnv, List[mab_algos.BaseModel, int]]: Environment to run
+        Tuple[mab_envs.BaseBanditEnv, List[mab_algos.BaseLearningRule, int]]: Environment to run
         algorithms, algorithms to run, max number of runs
     """
     print(f"Loading hyperparameters from: {configs_path}")

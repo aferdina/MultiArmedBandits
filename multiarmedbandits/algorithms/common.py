@@ -9,7 +9,7 @@ from ..environments import ArmAttributes, BaseBanditEnv
 from ..utils import is_positive_integer
 
 
-class BaseModel(ABC):
+class BaseLearningRule(ABC):
     """create a basemodel class for multiarmed bandit models"""
 
     def __init__(self, bandit_env: BaseBanditEnv) -> None:

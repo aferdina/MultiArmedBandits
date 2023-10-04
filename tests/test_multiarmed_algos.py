@@ -15,7 +15,7 @@ from multiarmedbandits.environments import INFODICT, BaseBanditEnv
         ),
     ],
 )
-def test_general_model(env: BaseBanditEnv, algo: mab_algo.BaseModel) -> None:
+def test_general_model(env: BaseBanditEnv, algo: mab_algo.BaseLearningRule) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
     algo.reset()

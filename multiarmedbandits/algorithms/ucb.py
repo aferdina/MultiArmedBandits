@@ -7,10 +7,10 @@ import numpy as np
 
 from ..environments import ArmAttributes, BaseBanditEnv
 from ..utils import is_float_between_0_and_1, is_positive_float
-from .common import BaseModel
+from .common import BaseLearningRule
 
 
-class UCB(BaseModel):
+class UCB(BaseLearningRule):
     """class for ucb algorithm"""
 
     def __init__(self, bandit_env: BaseBanditEnv) -> None:

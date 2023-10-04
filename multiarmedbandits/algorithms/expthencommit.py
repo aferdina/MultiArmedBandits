@@ -5,10 +5,10 @@ explore then commit algorithm
 from numpy import argmax
 
 from ..environments import ArmAttributes, BaseBanditEnv
-from .common import BaseModel
+from .common import BaseLearningRule
 
 
-class ExploreThenCommit(BaseModel):
+class ExploreThenCommit(BaseLearningRule):
     """explore then commit algorithm"""
 
     def __init__(self, explore: int, bandit_env: BaseBanditEnv) -> None:

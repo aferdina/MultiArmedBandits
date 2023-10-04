@@ -70,7 +70,7 @@ def next_square(number: int) -> Tuple[int, int]:
 class RunMultiarmedBanditModel:
     """run algorithm for mab on an environment"""
 
-    def __init__(self, mab_algo: bandit_algos.BaseModel, bandit_env: BaseBanditEnv):
+    def __init__(self, mab_algo: bandit_algos.BaseLearningRule, bandit_env: BaseBanditEnv):
         self.mab_algo = mab_algo
         self.bandit_env = bandit_env
         self.metrics: MABMetrics = MABMetrics(horizon=bandit_env.max_steps)
@@ -242,7 +242,7 @@ class CompareMultiArmedBandits:
         axis.set_ylabel(f"{metric_to_plot} over {named_metric.metrics.no_runs} runs")
         axis.set_xlabel(INDEX_AXIS)
 
-    def get_mab_algo(self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel) -> bandit_algos.BaseModel:
+    def get_mab_algo(self, test_env: BaseBanditEnv, mab_algo: MultiArmedBanditModel) -> bandit_algos.BaseLearningRule:
         """create instance of mab algorithm from multi armed bandit model and algo configs
 
         Args:
@@ -250,7 +250,7 @@ class CompareMultiArmedBandits:
             mab_algo (MultiArmedBanditModel): configs from multi armed algorithm
 
         Returns:
-            BaseModel: instance of mab algorithm
+            BaseLearningRule: instance of mab algorithm
         """
         _distr = getattr(bandit_algos, mab_algo.dist_type)
         return _distr(bandit_env=test_env, **mab_algo.dist_params)

@@ -4,6 +4,9 @@ LINT_PATHS=multiarmedbandits/ tests/
 pytest:
 	$(SHELL) ./scripts/run_tests.sh
 
+pytest-html-coverage:
+	$(SHELL) ./scripts/run_html_report.sh
+
 lint:
 	# stop the build if there are Python syntax errors or undefined names
 	# see https://www.flake8rules.com/

@@ -8,7 +8,7 @@ bandit_env = BaseBanditEnv(
         mean_parameter=[0.1, 0.2, 0.3],
         scale_parameter=[1.0, 1.0, 1.0],
     ),
-    max_steps=10000,
+    max_steps=1000,
 )
 algo_one = MultiArmedBanditModel(
     dist_type=Algorithms.BOLTZMANNSIMPLE,
@@ -46,7 +46,16 @@ algo_four = MultiArmedBanditModel(
         )
     },
 )
-compare = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four])
+algo_five = MultiArmedBanditModel(
+    dist_type=Algorithms.BOLTZMANNSIMPLE,
+    dist_params={
+        "boltzmann_configs": bandit_algos.BoltzmannConfigs(
+            explor_type=bandit_algos.ExplorationType.UCB,
+            some_constant=[1.0, 1.0, 1.0],
+        )
+    },
+)
+compare = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[algo_one, algo_two, algo_three, algo_four, algo_five])
 metrics = compare.train_all_models(no_of_runs=100)
 compare.plot_multiple_mabs(
     named_metrics=metrics,

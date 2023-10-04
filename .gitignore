@@ -12,10 +12,12 @@ build/
 *.egg-info/
 
 # Python Virtual Environment
+.venv/
 venv/
 env/
 *.env
 pip-selfcheck.json
+.venv/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/

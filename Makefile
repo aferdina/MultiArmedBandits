@@ -4,7 +4,7 @@ LINT_PATHS=multiarmedbandits/ tests/
 pytest:
 	$(SHELL) ./scripts/run_tests.sh
 
-pytest-coverage-html:
+pytest-html-coverage:
 	$(SHELL) ./scripts/run_html_report.sh
 
 lint:

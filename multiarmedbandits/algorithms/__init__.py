@@ -5,8 +5,8 @@ from .common import BaseModel
 from .epsilongreedy import EpsilonGreedy
 from .expthencommit import ExploreThenCommit
 from .gradientbandit import BaseLinesTypes, GradientBandit, GradientBaseLineAttr
-from .ucb import UCB
 from .thompson import ThompsonSampling
+from .ucb import UCB
 
 __all__ = [
     RandomVariable.__name__,

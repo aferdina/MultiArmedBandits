@@ -1,10 +1,13 @@
 """ Sampling from a posterior distribution.
 """
-from typing import Any, Dict
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List
+
 import numpy as np
 from scipy.stats import beta, norm
 from strenum import StrEnum
+
+from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv
 
 
 class PriorType(StrEnum):
@@ -102,7 +105,7 @@ class NormalPosterior(AbstractPosterior):
     Per default we choose the Bayes prior N(0,1) for every arm.
     """
 
-    def __init__(self, n_arms: int, config: Dict[str, Any], bandit_scale) -> None:
+    def __init__(self, n_arms: int, config: Dict[str, Any], bandit_scale: List[float]) -> None:
         self.config = config
         self.n_arms = n_arms
         self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
@@ -142,8 +145,7 @@ class NormalPosterior(AbstractPosterior):
 
         # Update the scale parameter for the selected arm, based on the received reward
         self.scale[action] = self.update_scale(
-            old_var=self.scale[action] ** 2, bandit_var=self.bandit_scale[action] ** 2,
-            times_played=self.values[action]
+            old_var=self.scale[action] ** 2, bandit_var=self.bandit_scale[action] ** 2, times_played=self.values[action]
         )
 
     @staticmethod
@@ -210,12 +212,11 @@ class PosteriorFactory:
     Returns an a posteriori distribution object.
     """
 
-    def __init__(self, bandit) -> None:
+    def __init__(self, bandit: BaseBanditEnv) -> None:
         self.n_arms = bandit.n_arms
         # needed for normal distribution but can also be None for Bernoulli -> check if scale parameter exists
-        self.bandit_scale = bandit.distr_params.scale_parameter
+        self.bandit_parameters = bandit.distr_params
         # Could be used for check whether prior/posterior makes sense for dist_type
-        self.dist_type = bandit.distr_params.dist_type
 
     def create(self, config: Dict[str, Any]):
         """
@@ -224,9 +225,12 @@ class PosteriorFactory:
         assert "prior" in config, "You have to provide a prior."
         prior = config["prior"]
         if prior == PriorType.BETA:
+            assert self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI, "Bandit is not a Bernoulli bandit."
             return BetaPosterior(self.n_arms, config=config)
         if prior == PriorType.NORMAL:
-            return NormalPosterior(n_arms=self.n_arms, config=config, bandit_scale=self.bandit_scale)
+            assert self.bandit_parameters.dist_type == ArmDistTypes.GAUSSIAN, "Bandit is not a normal bandit."
+            bandit_scale = self.bandit_parameters.scale_parameter
+            return NormalPosterior(n_arms=self.n_arms, config=config, bandit_scale=bandit_scale)
         if prior == PriorType.NIG:
             raise NotImplementedError("This prior is not yet implemented.")
         else:

@@ -19,12 +19,7 @@ algo_one = MultiArmedBanditModel(
 )
 algo_two = MultiArmedBanditModel(
     dist_type=Algorithms.THOMPSON,
-    dist_params={
-        "config": {
-            "prior": "beta",
-            "alpha": [10.0, 10.0, 10.0]
-        }
-    },
+    dist_params={"config": {"prior": "beta", "alpha": [10.0, 10.0, 10.0]}},
 )
 
 compare = CompareMultiArmedBandits(test_env=bandit_env, mab_algorithms=[algo_one, algo_two])

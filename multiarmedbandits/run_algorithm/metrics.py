@@ -7,7 +7,15 @@ from typing import Any
 import numpy as np
 from strenum import StrEnum
 
-from ..algorithms import UCB, BoltzmannGeneral, BoltzmannSimple, EpsilonGreedy, ExploreThenCommit, GradientBandit, ThompsonSampling
+from ..algorithms import (
+    UCB,
+    BoltzmannGeneral,
+    BoltzmannSimple,
+    EpsilonGreedy,
+    ExploreThenCommit,
+    GradientBandit,
+    ThompsonSampling,
+)
 
 
 class MetricNames(StrEnum):

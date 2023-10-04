@@ -17,7 +17,7 @@ def gaussian_env() -> mab_envs.BaseBanditEnv:
 
 
 @pytest.fixture(scope="module")
-def bernoulli_env_2arms() -> mab_envs.BaseBanditEnv:
+def bernoulli_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.BaseBanditEnv(
         distr_params=mab_envs.DistParameter(
             dist_type=mab_envs.ArmDistTypes.BERNOULLI,
@@ -57,60 +57,70 @@ def gap_env() -> mab_envs.GapEnv:
 
 
 @pytest.fixture(scope="module")
-def epsilon_greedy(bernoulli_env_2arms) -> mab_algos.EpsilonGreedy:
-    return mab_algos.EpsilonGreedy(epsilon=0.1, bandit_env=bernoulli_env_2arms)
+def epsilon_greedy(bernoulli_env) -> mab_algos.EpsilonGreedy:
+    return mab_algos.EpsilonGreedy(epsilon=0.1, bandit_env=bernoulli_env)
 
 
 @pytest.fixture(scope="module")
-def explore_then_commit(bernoulli_env_2arms) -> mab_algos.ExploreThenCommit:
-    return mab_algos.ExploreThenCommit(explore=1, bandit_env=bernoulli_env_2arms)
+def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
+    return mab_algos.ExploreThenCommit(explore=1, bandit_env=bernoulli_env)
 
 
 @pytest.fixture(scope="module")
-def simple_boltzmann_const_2arms(bernoulli_env_2arms) -> mab_algos.BoltzmannSimple:
+def ucb_alpha(bernoulli_env) -> mab_algos.UCBAlpha:
+    return mab_algos.UCBAlpha(bandit_env=bernoulli_env, alpha=2.0)
+
+
+@pytest.fixture(scope="module")
+def lecture_ucb(bernoulli_env) -> mab_algos.LectureUCB:
+    return mab_algos.LectureUCB(bandit_env=bernoulli_env, delta=0.1)
+
+
+@pytest.fixture(scope="module")
+def simple_boltzmann_const_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(
         boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
             explor_type=mab_algos.boltzmann.ExplorationType.CONSTANT, some_constant=[0.5, 0.5]
         ),
-        bandit_env=bernoulli_env_2arms,
+        bandit_env=bernoulli_env,
     )
 
 
 @pytest.fixture(scope="module")
-def simple_boltzmann_log_2arms(bernoulli_env_2arms) -> mab_algos.BoltzmannSimple:
+def simple_boltzmann_log_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(
         boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
             explor_type=mab_algos.boltzmann.ExplorationType.LOG, some_constant=[0.5, 0.5]
         ),
-        bandit_env=bernoulli_env_2arms,
+        bandit_env=bernoulli_env,
     )
 
 
 @pytest.fixture(scope="module")
-def simple_boltzmann_sqrt_2arms(bernoulli_env_2arms) -> mab_algos.BoltzmannSimple:
+def simple_boltzmann_sqrt_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(
         boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
             explor_type=mab_algos.boltzmann.ExplorationType.SQRT, some_constant=[0.5, 0.5]
         ),
-        bandit_env=bernoulli_env_2arms,
+        bandit_env=bernoulli_env,
     )
 
 
 @pytest.fixture(scope="module")
-def simple_boltzmann_ucb_2arms(bernoulli_env_2arms) -> mab_algos.BoltzmannSimple:
+def simple_boltzmann_ucb_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(
         boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
             explor_type=mab_algos.boltzmann.ExplorationType.UCB, some_constant=[0.5, 0.5]
         ),
-        bandit_env=bernoulli_env_2arms,
+        bandit_env=bernoulli_env,
     )
 
 
 @pytest.fixture(scope="module")
-def simple_boltzmann_bge_2arms(bernoulli_env_2arms) -> mab_algos.BoltzmannSimple:
+def simple_boltzmann_bge_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(
         boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
             explor_type=mab_algos.boltzmann.ExplorationType.BGE, some_constant=[0.5, 0.5]
         ),
-        bandit_env=bernoulli_env_2arms,
+        bandit_env=bernoulli_env,
     )

@@ -8,9 +8,9 @@ from multiarmedbandits.environments import INFODICT, BaseBanditEnv
 @pytest.mark.parametrize(
     "env, algo",
     [
-        (pytest.lazy_fixture("bernoulli_env_2arms"), pytest.lazy_fixture("epsilon_greedy")),
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("epsilon_greedy")),
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("explore_then_commit"),
         ),
     ],
@@ -61,7 +61,7 @@ def test_general_model(env: BaseBanditEnv, algo: mab_algo.BaseLearningRule) -> N
 @pytest.mark.parametrize(
     "env, algo",
     [
-        (pytest.lazy_fixture("bernoulli_env_2arms"), pytest.lazy_fixture("epsilon_greedy")),
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("epsilon_greedy")),
     ],
 )
 def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) -> None:
@@ -116,7 +116,7 @@ def test_epsilon_greedy_model(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy) 
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("explore_then_commit"),
         ),
     ],
@@ -148,7 +148,7 @@ def test_epsilon_greedy_model_two(env: BaseBanditEnv, algo: mab_algo.EpsilonGree
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("simple_boltzmann_const_2arms"),
         ),
     ],
@@ -187,7 +187,7 @@ def test_boltzmann_const_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimpl
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("simple_boltzmann_log_2arms"),
         ),
     ],
@@ -236,7 +236,7 @@ def test_boltzmann_log_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("simple_boltzmann_sqrt_2arms"),
         ),
     ],
@@ -282,7 +282,7 @@ def test_boltzmann_sqrt_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("simple_boltzmann_ucb_2arms"),
         ),
     ],
@@ -334,7 +334,7 @@ def test_boltzmann_ucb_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     "env, algo",
     [
         (
-            pytest.lazy_fixture("bernoulli_env_2arms"),
+            pytest.lazy_fixture("bernoulli_env"),
             pytest.lazy_fixture("simple_boltzmann_bge_2arms"),
         ),
     ],
@@ -377,3 +377,101 @@ def test_boltzmann_bge_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
+
+
+@pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("ucb_alpha"))])
+def test_ucb_alpha(env: BaseBanditEnv, algo: mab_algo.UCBAlpha) -> None:
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    # assert algo.epsilon == 0.1
+    assert algo.n_arms == 2
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+
+    # test select arm method
+    action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
+    assert action in range(2)
+    # test environment step for given action
+    _new_state, reward, done, info = env.step(action=action)
+    assert reward in [1.0, 0.0]
+    assert _new_state == 0
+    assert done is False
+    algo.update(chosen_arm=action, reward=reward)
+    assert not np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+
+    # test update method
+    algo.reset()
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    reward = 1.0
+    action = 1
+
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 1], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 1.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 2], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 4.0
+    action = 0
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([1, 2], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([4.0, 1.0], dtype=np.float32))
+
+    # test select arm method
+    selected_arms = [algo.select_arm(info[INFODICT.ARMATTRIBUTES]) for _ in range(int(1e5))]
+    # ucb of arm 0 is higher than ucb of arm 1, so only arm 0 should be selected
+    assert 0 in selected_arms
+    assert 1 not in selected_arms
+
+
+@pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("lecture_ucb"))])
+def test_lecture_ucb(env: BaseBanditEnv, algo: mab_algo.LectureUCB) -> None:
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    # assert algo.epsilon == 0.1
+    assert algo.n_arms == 2
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+
+    # test select arm method
+    action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
+    assert action in range(2)
+    # test environment step for given action
+    _new_state, reward, done, info = env.step(action=action)
+    assert reward in [1.0, 0.0]
+    assert _new_state == 0
+    assert done is False
+    algo.update(chosen_arm=action, reward=reward)
+    assert not np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+
+    # test update method
+    algo.reset()
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    reward = 1.0
+    action = 1
+
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 1], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 1.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([0, 2], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([0, 1.0], dtype=np.float32))
+    reward = 4.0
+    action = 0
+    algo.update(chosen_arm=action, reward=reward)
+    assert np.array_equal(algo.counts, np.array([1, 2], dtype=np.float32))
+    assert np.array_equal(algo.values, np.array([4.0, 1.0], dtype=np.float32))
+
+    # test select arm method
+    selected_arms = [algo.select_arm(info[INFODICT.ARMATTRIBUTES]) for _ in range(int(1e5))]
+    # ucb of arm 0 is higher than ucb of arm 1, so only arm 0 should be selected
+    assert 0 in selected_arms
+    assert 1 not in selected_arms

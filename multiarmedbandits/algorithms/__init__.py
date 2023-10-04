@@ -5,7 +5,7 @@ from .common import BaseLearningRule
 from .epsilongreedy import EpsilonGreedy
 from .expthencommit import ExploreThenCommit
 from .gradientbandit import BaseLinesTypes, GradientBandit, GradientBaseLineAttr
-from .ucb import UCB
+from .ucb import LectureUCB, UCBAlpha
 
 __all__ = [
     RandomVariable.__name__,
@@ -20,5 +20,6 @@ __all__ = [
     GradientBandit.__name__,
     BaseLinesTypes.__name__,
     GradientBaseLineAttr.__name__,
-    UCB.__name__,
+    UCBAlpha.__name__,
+    LectureUCB.__name__,
 ]

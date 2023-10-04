@@ -8,13 +8,13 @@ import numpy as np
 from strenum import StrEnum
 
 from ..algorithms import (
-    UCBAlpha,
-    LectureUCB,
     BoltzmannGeneral,
     BoltzmannSimple,
     EpsilonGreedy,
     ExploreThenCommit,
     GradientBandit,
+    LectureUCB,
+    UCBAlpha,
 )
 
 

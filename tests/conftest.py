@@ -76,7 +76,6 @@ def lecture_ucb(bernoulli_env) -> mab_algos.LectureUCB:
     return mab_algos.LectureUCB(bandit_env=bernoulli_env, delta=0.1)
 
 
-
 @pytest.fixture(scope="module")
 def simple_boltzmann_const_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
     return mab_algos.BoltzmannSimple(

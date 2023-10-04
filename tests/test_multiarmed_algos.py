@@ -377,6 +377,8 @@ def test_boltzmann_bge_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannSimple)
     _new_state, reward, done, info = env.step(action=action)
     algo.update(chosen_arm=action, reward=reward)
     assert algo.counts.sum() == 2
+
+
 @pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("ucb_alpha"))])
 def test_ucb_alpha(env: BaseBanditEnv, algo: mab_algo.UCBAlpha) -> None:
     # resetting environment and algorithm

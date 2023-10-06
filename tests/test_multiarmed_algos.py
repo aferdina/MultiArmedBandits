@@ -475,3 +475,26 @@ def test_lecture_ucb(env: BaseBanditEnv, algo: mab_algo.LectureUCB) -> None:
     # ucb of arm 0 is higher than ucb of arm 1, so only arm 0 should be selected
     assert 0 in selected_arms
     assert 1 not in selected_arms
+
+
+@pytest.mark.parametrize(
+    "env, algo",
+    [
+        (
+            pytest.lazy_fixture("bernoulli_env"),
+            pytest.lazy_fixture("boltzmann_rv_const_2arms"),
+        ),
+    ],
+)
+def test_boltzmann_rv_const_2arms(env: BaseBanditEnv, algo: mab_algo.BoltzmannGeneral) -> None:
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+
+    # test sample random variable method through random_variables
+    assert isinstance(algo.random_variables, np.ndarray)
+    assert algo.random_variables.size == env.max_steps * env.n_arms
+
+    # test select arm method
+    action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
+    assert action in range(2)

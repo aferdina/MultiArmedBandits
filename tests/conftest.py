@@ -124,3 +124,14 @@ def simple_boltzmann_bge_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
         ),
         bandit_env=bernoulli_env,
     )
+
+
+@pytest.fixture(scope="module")
+def boltzmann_rv_const_2arms(bernoulli_env) -> mab_algos.BoltzmannGeneral:
+    return mab_algos.BoltzmannGeneral(
+        boltzmann_configs=mab_algos.boltzmann.BoltzmannConfigs(
+            explor_type=mab_algos.boltzmann.ExplorationType.CONSTANT, some_constant=[0.5, 0.5]
+        ),
+        bandit_env=bernoulli_env,
+        rv_config=mab_algos.RandomVariable(rv_name="gumbel_r", rv_param={"scale": 1.0, "loc": 0.0}),
+    )

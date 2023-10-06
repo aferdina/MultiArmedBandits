@@ -1,7 +1,7 @@
 """ common class for multi armed bandit environments
 """
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from strenum import StrEnum
@@ -23,6 +23,19 @@ class DistParameter:
     dist_type: ArmDistTypes
     mean_parameter: list[float]
     scale_parameter: list[float] | None = None
+
+    def sample(self, action) -> float:
+        """sample from distribution at position action"""
+        if self.dist_type == ArmDistTypes.GAUSSIAN:
+            return np.random.normal(
+                    loc=self.mean_parameter[action],
+                    scale=self.scale_parameter[action],
+                    size=None,
+                )
+        if self.dist_type == ArmDistTypes.BERNOULLI:
+            return 1.0 if np.random.uniform() < self.mean_parameter[action] else 0.0
+        raise NotImplementedError
+
 
 
 class INFODICT(StrEnum):
@@ -76,11 +89,11 @@ class BaseBanditEnv:
         mean_parameter = self.distr_params.mean_parameter
         self.bandit_statistics: BanditStatistics = BanditStatistics(
             max_mean=max(mean_parameter),
-            max_mean_positions=[index for index, value in enumerate(mean_parameter) if value == max(mean_parameter)],
+            max_mean_positions=[index for index, value in enumerate(mean_parameter) 
+                                if value == max(mean_parameter)],
         )
         self.bandit_statistics.reset_statistics()
 
-        self.get_reward = self._create_reward_function()
 
     def get_reward(self, action: int) -> float:
         """get reward for a given action
@@ -91,7 +104,7 @@ class BaseBanditEnv:
         Returns:
             float: reward for playing an specific action
         """
-        return float(action)
+        return self.distr_params.sample(action)
 
     def step(self, action: int) -> Tuple[int, float, bool, Dict[str, Any]]:
         """run a step in the multiarmed bandit
@@ -146,22 +159,3 @@ class BaseBanditEnv:
             },
         )
 
-    def _create_reward_function(self) -> Callable[[int], float]:
-        if self.distr_params.dist_type == ArmDistTypes.BERNOULLI:
-
-            def _get_reward(action: int) -> float:
-                reward = 1.0 if np.random.uniform() < self.distr_params.mean_parameter[action] else 0.0
-                return reward
-
-            return _get_reward
-        if self.distr_params.dist_type == ArmDistTypes.GAUSSIAN:
-
-            def _get_reward(action: int) -> float:
-                return np.random.normal(
-                    loc=self.distr_params.mean_parameter[action],
-                    scale=self.distr_params.scale_parameter[action],
-                    size=None,
-                )
-
-            return _get_reward
-        raise ValueError("Something went wrong")

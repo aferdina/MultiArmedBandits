@@ -28,6 +28,28 @@ def bernoulli_env() -> mab_envs.BaseBanditEnv:
 
 
 @pytest.fixture(scope="module")
+def poisson_env() -> mab_envs.BaseBanditEnv:
+    return mab_envs.BaseBanditEnv(
+        distr_params=mab_envs.DistParameter(
+            dist_type=mab_envs.ArmDistTypes.POISSON,
+            mean_parameter=[1, 7],
+        ),
+        max_steps=10,
+    )
+
+
+@pytest.fixture(scope="module")
+def exponential_env() -> mab_envs.BaseBanditEnv:
+    return mab_envs.BaseBanditEnv(
+        distr_params=mab_envs.DistParameter(
+            dist_type=mab_envs.ArmDistTypes.EXPONENTIAL,
+            mean_parameter=[0.1, 0.7],
+        ),
+        max_steps=10,
+    )
+
+
+@pytest.fixture(scope="module")
 def testbed_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.TestBed(
         max_steps=10,

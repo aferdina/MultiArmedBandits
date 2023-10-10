@@ -32,6 +32,22 @@ from multiarmedbandits.environments import BaseBanditEnv
                 0,
             ],
         ),
+        (
+            pytest.lazy_fixture("poisson_env"),
+            10,
+            7,
+            [
+                1,
+            ],
+        ),
+        (
+            pytest.lazy_fixture("exponential_env"),
+            10,
+            0.7,
+            [
+                1,
+            ],
+        ),
     ],
 )
 def test_env_init(env: BaseBanditEnv, max_steps: int, max_mean: int, max_mean_position: List[int]) -> None:
@@ -48,7 +64,7 @@ def test_env_init(env: BaseBanditEnv, max_steps: int, max_mean: int, max_mean_po
     # testing bandit step
     for play_action in range(2):
         next_state, reward, done, info = env.step(play_action)
-        assert isinstance(reward, float), "reward must be a float variable"
+        assert isinstance(reward, (int, float)), "reward must be a float variable"
         assert next_state == 0, "next state is always 0"
         assert isinstance(done, bool), "done must be a bool variable"
         assert isinstance(info, dict), "info must be a dict"

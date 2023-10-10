@@ -23,7 +23,7 @@ class DistParameter:
     """distribution parameter for arms in multiarmed bandit problems"""
 
     dist_type: ArmDistTypes
-    mean_parameter: list[float] | None = None
+    mean_parameter: list[float]
     scale_parameter: list[float] | None = None
 
 
@@ -183,7 +183,7 @@ class BaseBanditEnv:
                 
                 def _get_reward(action: int) -> float:
                     return np.random.exponential(
-                        scale=self.distr_params.scale_parameter[action],
+                        scale=self.distr_params.mean_parameter[action],
                         size=None,
                     )
 

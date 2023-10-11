@@ -32,3 +32,10 @@ class AbstractPosterior(ABC):
         """
         Reset our posterior distribution.
         """
+
+    @staticmethod
+    def check_len_params(parameters, n_arms):
+        """
+        Check whether some parameters a length equal to the number of arms.
+        """
+        assert len(parameters) == n_arms, f"There have to be {n_arms} initial parameter values."

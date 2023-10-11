@@ -1,4 +1,5 @@
-""" thompson sampling algorithm for multi-armed bandits
+""" 
+Implementation of the Thompson Sampling algorithm.
 """
 from typing import Any, Dict
 
@@ -11,7 +12,20 @@ from multiarmedbandits.utils.posterior import PosteriorFactory
 
 class ThompsonSampling(BaseModel):
     """
-    class for thompson sampling algorithm
+    Implementation of the Thompson Sampling algorithm.
+
+    Thompson Sampling is an algorithm that uses the Bayesian approach to decide
+    which arm to pull in the multi-armed bandit setting. It samples from the
+    posterior distribution over the expected rewards of the arms and selects
+    the arm with the highest sample.
+
+    Attributes:
+    - posterior (Posterior): The posterior distribution over the arms.
+
+    Methods:
+    - select_arm(arm_attrib: ArmAttributes | None) -> int: Returns the index of the selected arm.
+    - update(chosen_arm: int, reward: float): Updates the posterior distribution with the received reward.
+    - reset(): Resets the posterior distribution to its initial state.
     """
 
     def __init__(self, bandit_env: BaseBanditEnv, config: Dict[str, Any]) -> None:

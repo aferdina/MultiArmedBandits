@@ -71,9 +71,11 @@ def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
 # def config_empty():
 #     return {}
 
+
 @pytest.fixture(scope="module")
 def config_beta_no_info():
     return {"prior": PriorType.BETA}
+
 
 # @pytest.fixture(scope="module")
 # def config_beta_with_info():
@@ -81,9 +83,11 @@ def config_beta_no_info():
 #                 "alpha": [1, 2],
 #                 "beta": [1, 2]}
 
+
 @pytest.fixture(scope="module")
 def config_normal_no_info():
     return {"prior": PriorType.NORMAL}
+
 
 # @pytest.fixture(scope="module")
 # def config_normal_with_info():
@@ -103,13 +107,16 @@ def config_normal_no_info():
 #                 "alpha": [2, 2],
 #                 "beta": [2, 2]}
 
+
 @pytest.fixture(scope="module")
 def thompson_bernoulli_no_info(bernoulli_env, config_beta_no_info) -> mab_algos.ThompsonSampling:
     return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_no_info)
 
+
 # @pytest.fixture(scope="module")
 # def thompson_bernoulli_with_info(bernoulli_env, config_beta_with_info) -> mab_algos.ThompsonSampling:
 #     return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_with_info)
+
 
 @pytest.fixture(scope="module")
 def thompson_gaussian_no_info(gaussian_env, config_normal_no_info) -> mab_algos.ThompsonSampling:

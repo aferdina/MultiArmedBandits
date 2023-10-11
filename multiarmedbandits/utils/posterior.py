@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 import numpy as np
-from scipy.stats import beta, norm, invgamma
+from scipy.stats import beta, invgamma, norm
 from strenum import StrEnum
 
 from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv

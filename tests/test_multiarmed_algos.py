@@ -144,9 +144,9 @@ def test_epsilon_greedy_model2(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy)
     assert np.array_equal(algo.counts, np.array([1, 1], dtype=np.float32))
 
 
-@pytest.mark.parametrize("env, algo",
-                         [(pytest.lazy_fixture("bernoulli_env"),
-                           pytest.lazy_fixture("thompson_bernoulli_no_info"))])
+@pytest.mark.parametrize(
+    "env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("thompson_bernoulli_no_info"))]
+)
 def test_thompson_bernoulli_no_info(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
@@ -190,9 +190,9 @@ def test_thompson_bernoulli_no_info(env: BaseBanditEnv, algo: mab_algo.ThompsonS
     assert algo.posterior.beta[action] == 2
 
 
-@pytest.mark.parametrize("env, algo",
-                         [(pytest.lazy_fixture("gaussian_env"),
-                           pytest.lazy_fixture("thompson_gaussian_no_info"))])
+@pytest.mark.parametrize(
+    "env, algo", [(pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_gaussian_no_info"))]
+)
 def test_thompson_gaussian_no_info(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()

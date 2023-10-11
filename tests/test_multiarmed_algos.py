@@ -1,3 +1,4 @@
+from typing import Any, Dict
 import numpy as np
 import pytest
 
@@ -145,10 +146,27 @@ def test_epsilon_greedy_model2(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy)
 
 
 @pytest.mark.parametrize(
-    "env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("thompson_bernoulli_beta_without_info")),
-                  (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("thompson_bernoulli_beta_with_info"))]
+    "env, config",
+    [
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_empty")),
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_beta")),
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_normal")),
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_nig")),
+    ],
 )
-def test_thompson_bernoulli_beta(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
+def test_thompson_wrong_prior(env: BaseBanditEnv, config: Dict[str, Any]) -> None:
+    with pytest.raises(AssertionError):
+        mab_algo.ThompsonSampling(bandit_env=env, config=config)
+
+
+@pytest.mark.parametrize(
+    "env, algo",
+    [
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("thompson_beta_without_info")),
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("thompson_beta_with_info")),
+    ],
+)
+def test_thompson_beta(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
     algo.reset()
@@ -194,10 +212,13 @@ def test_thompson_bernoulli_beta(env: BaseBanditEnv, algo: mab_algo.ThompsonSamp
 
 
 @pytest.mark.parametrize(
-    "env, algo", [(pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_gaussian_normal_without_info")),
-                  (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_gaussian_normal_with_info"))]
+    "env, algo",
+    [
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_normal_without_info")),
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_normal_with_info")),
+    ],
 )
-def test_thompson_gaussian_normal_without_info(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
+def test_thompson_normal(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
     algo.reset()
@@ -243,10 +264,13 @@ def test_thompson_gaussian_normal_without_info(env: BaseBanditEnv, algo: mab_alg
 
 
 @pytest.mark.parametrize(
-    "env, algo", [(pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_gaussian_nig_without_info")),
-                  (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_gaussian_nig_with_info"))]
+    "env, algo",
+    [
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_nig_without_info")),
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("thompson_nig_with_info")),
+    ],
 )
-def test_thompson_gaussian_nig_without_info(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
+def test_thompson_nig(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
     # resetting environment and algorithm
     _new_state, info = env.reset()
     algo.reset()

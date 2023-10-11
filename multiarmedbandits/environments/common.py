@@ -172,10 +172,10 @@ class BaseBanditEnv:
             case ArmDistTypes.POISSON:
                 
                 def _get_reward(action: int) -> float:
-                    return np.random.poisson(
+                    return float(np.random.poisson(
                         lam=self.distr_params.mean_parameter[action],
                         size=None,
-                    )
+                    ))
 
                 return _get_reward
 

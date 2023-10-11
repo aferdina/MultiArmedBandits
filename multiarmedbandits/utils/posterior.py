@@ -264,7 +264,7 @@ class NIGPosterior(AbstractPosterior):
             times_played=self.counts[action], old_mean=self.values[action], value_to_add=reward
         )
         # Update sum of squared rewards
-        self.sqsum[action] = self.sqsum + reward**2
+        self.sqsum[action] = self.sqsum[action] + reward**2
 
         # Update the parameters of the NIG distribution for the selected arm, based on the received reward
         old_mean = self.mean[action]

@@ -148,6 +148,7 @@ def test_epsilon_greedy_model2(env: BaseBanditEnv, algo: mab_algo.EpsilonGreedy)
 @pytest.mark.parametrize(
     "env, config",
     [
+        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_unknown_prior")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_empty")),
         (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_beta")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_normal")),

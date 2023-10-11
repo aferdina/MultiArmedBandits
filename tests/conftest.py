@@ -73,6 +73,11 @@ def config_empty():
 
 
 @pytest.fixture(scope="module")
+def config_unknown_prior():
+    return {"prior": "hello"}
+
+
+@pytest.fixture(scope="module")
 def config_beta():
     return {"prior": PriorType.BETA}
 

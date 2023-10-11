@@ -73,58 +73,66 @@ def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
 
 
 @pytest.fixture(scope="module")
-def config_beta_no_info():
+def config_beta_without_info():
     return {"prior": PriorType.BETA}
 
 
-# @pytest.fixture(scope="module")
-# def config_beta_with_info():
-#     return {"prior": PriorType.BETA,
-#                 "alpha": [1, 2],
-#                 "beta": [1, 2]}
+@pytest.fixture(scope="module")
+def config_beta_with_info():
+    return {"prior": PriorType.BETA,
+            "alpha": [1.0, 2.0],
+            "beta": [1.0, 2.0]}
 
 
 @pytest.fixture(scope="module")
-def config_normal_no_info():
+def config_normal_without_info():
     return {"prior": PriorType.NORMAL}
 
 
-# @pytest.fixture(scope="module")
-# def config_normal_with_info():
-#     return {"prior": PriorType.NORMAL,
-#                 "mean": [1, 2],
-#                 "scale": [1, 2]}
+@pytest.fixture(scope="module")
+def config_normal_with_info():
+    return {"prior": PriorType.NORMAL,
+            "mean": [1.0, 2.0],
+            "scale": [1.0, 2.0]}
 
 
 @pytest.fixture(scope="module")
-def config_nig_no_info():
+def config_nig_without_info():
     return {"prior": PriorType.NIG}
 
 
-# @pytest.fixture(scope="module")
-# def config_nig_with_info():
-#     return {"prior": PriorType.NIG,
-#                 "mean": [1, 2],
-#                 "lambda": [1, 2],
-#                 "alpha": [2, 2],
-#                 "beta": [2, 2]}
+@pytest.fixture(scope="module")
+def config_nig_with_info():
+    return {"prior": PriorType.NIG,
+            "mean": [1.0, 2.0],
+            "lambda": [2.0, 2.0],
+            "alpha": [2.0, 1.0],
+            "beta": [1.0, 2.0]}
 
 
 @pytest.fixture(scope="module")
-def thompson_bernoulli_beta_no_info(bernoulli_env, config_beta_no_info) -> mab_algos.ThompsonSampling:
-    return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_no_info)
-
-
-# @pytest.fixture(scope="module")
-# def thompson_bernoulli_with_info(bernoulli_env, config_beta_with_info) -> mab_algos.ThompsonSampling:
-#     return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_with_info)
+def thompson_bernoulli_beta_without_info(bernoulli_env, config_beta_without_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_without_info)
 
 
 @pytest.fixture(scope="module")
-def thompson_gaussian_normal_no_info(gaussian_env, config_normal_no_info) -> mab_algos.ThompsonSampling:
-    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_normal_no_info)
+def thompson_bernoulli_beta_with_info(bernoulli_env, config_beta_with_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config_beta_with_info)
 
 
 @pytest.fixture(scope="module")
-def thompson_gaussian_nig_no_info(gaussian_env, config_nig_no_info) -> mab_algos.ThompsonSampling:
-    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_nig_no_info)
+def thompson_gaussian_normal_without_info(gaussian_env, config_normal_without_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_normal_without_info)
+
+@pytest.fixture(scope="module")
+def thompson_gaussian_normal_with_info(gaussian_env, config_normal_with_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_normal_with_info)
+
+
+@pytest.fixture(scope="module")
+def thompson_gaussian_nig_without_info(gaussian_env, config_nig_without_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_nig_without_info)
+
+@pytest.fixture(scope="module")
+def thompson_gaussian_nig_with_info(gaussian_env, config_nig_with_info) -> mab_algos.ThompsonSampling:
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_nig_with_info)

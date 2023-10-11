@@ -293,4 +293,3 @@ def test_thompson_gaussian_nig_no_info(env: BaseBanditEnv, algo: mab_algo.Thomps
     assert np.array_equal(algo.posterior.counts, np.array([0, 3], dtype=np.float32))
     assert np.array_equal(algo.posterior.values, np.array([0, 2.0], dtype=np.float32))
     assert np.array_equal(algo.posterior.sqsum, np.array([0, 18.0], dtype=np.float32))
-    

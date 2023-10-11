@@ -95,9 +95,11 @@ def config_normal_no_info():
 #                 "mean": [1, 2],
 #                 "scale": [1, 2]}
 
+
 @pytest.fixture(scope="module")
 def config_nig_no_info():
     return {"prior": PriorType.NIG}
+
 
 # @pytest.fixture(scope="module")
 # def config_nig_with_info():
@@ -121,6 +123,7 @@ def thompson_bernoulli_beta_no_info(bernoulli_env, config_beta_no_info) -> mab_a
 @pytest.fixture(scope="module")
 def thompson_gaussian_normal_no_info(gaussian_env, config_normal_no_info) -> mab_algos.ThompsonSampling:
     return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config_normal_no_info)
+
 
 @pytest.fixture(scope="module")
 def thompson_gaussian_nig_no_info(gaussian_env, config_nig_no_info) -> mab_algos.ThompsonSampling:

@@ -10,6 +10,13 @@ from strenum import StrEnum
 from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv
 
 
+def check_length_parameters(parameters, n_arms):
+    """
+    Check whether parameters have the same length as the arms of the multi-armed bandit.
+    """
+    assert len(parameters) == n_arms, f"There have to be {n_arms} initial parameter values."
+
+
 class PriorType(StrEnum):
     """
     Specify different types of prior distributions:
@@ -66,13 +73,13 @@ class BetaPosterior(AbstractPosterior):
         self.n_arms = n_arms
         # Initialize the alpha parameter of the Beta distribution for each arm
         if "alpha" in self.config:
-            assert len(self.config["alpha"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["alpha"], self.n_arms)
             self.alpha = np.array(self.config["alpha"])
         else:
             self.alpha = np.ones(self.n_arms)
         # Initialize the beta parameter of the Beta distribution for each arm
         if "beta" in self.config:
-            assert len(self.config["beta"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["beta"], self.n_arms)
             self.beta = np.array(self.config["beta"])
         else:
             self.beta = np.ones(self.n_arms)
@@ -90,13 +97,13 @@ class BetaPosterior(AbstractPosterior):
     def reset(self) -> None:
         # Reset the alpha parameter of the Beta distribution for each arm
         if "alpha" in self.config:
-            assert len(self.config["alpha"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["alpha"], self.n_arms)
             self.alpha = np.array(self.config["alpha"])
         else:
             self.alpha = np.ones(self.n_arms)
         # Reset the beta parameter of the Beta distribution for each arm
         if "beta" in self.config:
-            assert len(self.config["beta"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["beta"], self.n_arms)
             self.beta = np.array(self.config["beta"])
         else:
             self.beta = np.ones(self.n_arms)
@@ -118,13 +125,13 @@ class NormalPosterior(AbstractPosterior):
         self.bandit_scale = bandit_scale
         # Initialize the mean parameter of the Normal distribution for each arm
         if "mean" in self.config:
-            assert len(self.config["mean"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["mean"], self.n_arms)
             self.mean = np.array(self.config["mean"])
         else:
             self.mean = np.zeros(self.n_arms)
         # Initialize the scale parameter of the Normal distribution for each arm
         if "scale" in self.config:
-            assert len(self.config["scale"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["scale"], self.n_arms)
             self.scale = np.array(self.config["scale"])
         else:
             self.scale = np.ones(self.n_arms)
@@ -203,13 +210,13 @@ class NormalPosterior(AbstractPosterior):
         self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
         # Reset the mean parameter of the Normal distribution for each arm
         if "mean" in self.config:
-            assert len(self.config["mean"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["mean"], self.n_arms)
             self.mean = np.array(self.config["mean"])
         else:
             self.mean = np.zeros(self.n_arms)
         # Reset the scale parameter of the Normal distribution for each arm
         if "scale" in self.config:
-            assert len(self.config["scale"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["scale"], self.n_arms)
             self.scale = np.array(self.config["scale"])
         else:
             self.scale = np.ones(self.n_arms)
@@ -231,22 +238,22 @@ class NIGPosterior(AbstractPosterior):
         self.sqsum: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)  # sum of squares
         # Initialize the parameters of the NIG distribution for each arm
         if "mean" in self.config:
-            assert len(self.config["mean"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["mean"], self.n_arms)
             self.mean = np.array(self.config["mean"])
         else:
             self.mean = np.zeros(self.n_arms)
         if "lambda" in self.config:
-            assert len(self.config["lambda"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["lambda"], self.n_arms)
             self.lambda_p = np.array(self.config["lambda"])
         else:
             self.lambda_p = np.ones(self.n_arms)
         if "alpha" in self.config:
-            assert len(self.config["alpha"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["alpha"], self.n_arms)
             self.alpha = np.array(self.config["alpha"])
         else:
             self.alpha = np.ones(self.n_arms)
         if "beta" in self.config:
-            assert len(self.config["beta"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["beta"], self.n_arms)
             self.beta = np.array(self.config["beta"])
         else:
             self.beta = np.ones(self.n_arms)
@@ -304,22 +311,22 @@ class NIGPosterior(AbstractPosterior):
         self.sqsum: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)  # sum of squares
         # Reset the parameters of the NIG distribution for each arm
         if "mean" in self.config:
-            assert len(self.config["mean"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["mean"], self.n_arms)
             self.mean = np.array(self.config["mean"])
         else:
             self.mean = np.zeros(self.n_arms)
         if "lambda" in self.config:
-            assert len(self.config["lambda"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["lambda"], self.n_arms)
             self.lambda_p = np.array(self.config["lambda"])
         else:
             self.lambda_p = np.ones(self.n_arms)
         if "alpha" in self.config:
-            assert len(self.config["alpha"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["alpha"], self.n_arms)
             self.alpha = np.array(self.config["alpha"])
         else:
             self.alpha = np.ones(self.n_arms)
         if "beta" in self.config:
-            assert len(self.config["beta"]) == self.n_arms, f"There have to be {self.n_arms} initial parameter values."
+            check_length_parameters(self.config["beta"], self.n_arms)
             self.beta = np.array(self.config["beta"])
         else:
             self.beta = np.ones(self.n_arms)

@@ -124,3 +124,10 @@ def simple_boltzmann_bge_2arms(bernoulli_env) -> mab_algos.BoltzmannSimple:
         ),
         bandit_env=bernoulli_env,
     )
+
+
+@pytest.fixture(scope="module")
+def gradient_bandit(bernoulli_env) -> mab_algos.GradientBandit:
+    return mab_algos.GradientBandit(
+        alpha=0.05, baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.ZERO), bandit_env=bernoulli_env
+    )

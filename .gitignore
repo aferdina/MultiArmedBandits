@@ -2,7 +2,7 @@
 *.pyc
 *.pyo
 __pycache__
-
+**.DS_Store
 # Compiled C extension files
 *.so
 
@@ -12,6 +12,7 @@ build/
 *.egg-info/
 
 # Python Virtual Environment
+.venv/
 venv/
 env/
 *.env

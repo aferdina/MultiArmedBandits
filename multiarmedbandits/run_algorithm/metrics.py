@@ -8,12 +8,13 @@ import numpy as np
 from strenum import StrEnum
 
 from ..algorithms import (
-    UCB,
     BoltzmannGeneral,
     BoltzmannSimple,
     EpsilonGreedy,
     ExploreThenCommit,
     GradientBandit,
+    LectureUCB,
+    UCBAlpha,
     ThompsonSampling,
 )
 
@@ -88,7 +89,8 @@ class Algorithms(StrEnum):
 
     EPSILONGREEDY = EpsilonGreedy.__name__
     EXPLORRETHENCOMMIT = ExploreThenCommit.__name__
-    UCBALGO = UCB.__name__
+    UCBALPHAALGO = UCBAlpha.__name__
+    LECTUREUCBALGO = LectureUCB.__name__
     BOLTZMANNSIMPLE = BoltzmannSimple.__name__
     BOLTZMANNRANDOM = BoltzmannGeneral.__name__
     GRADIENTBANDIT = GradientBandit.__name__

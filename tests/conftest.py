@@ -67,6 +67,7 @@ def explore_then_commit(bernoulli_env) -> mab_algos.ExploreThenCommit:
     return mab_algos.ExploreThenCommit(explore=1, bandit_env=bernoulli_env)
 
 
+@pytest.fixture(scope="module")
 def ucb_alpha(bernoulli_env) -> mab_algos.UCBAlpha:
     return mab_algos.UCBAlpha(bandit_env=bernoulli_env, alpha=2.0)
 

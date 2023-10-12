@@ -5,12 +5,12 @@ from typing import Any, Dict
 
 import numpy as np
 
-from multiarmedbandits.algorithms.common import BaseModel
+from multiarmedbandits.algorithms.common import BaseLearningRule
 from multiarmedbandits.environments import ArmAttributes, BaseBanditEnv
 from multiarmedbandits.utils.posterior import PosteriorFactory
 
 
-class ThompsonSampling(BaseModel):
+class ThompsonSampling(BaseLearningRule):
     """
     Implementation of the Thompson Sampling algorithm.
 

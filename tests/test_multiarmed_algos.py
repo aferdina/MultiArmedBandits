@@ -484,7 +484,7 @@ def test_gradient_bandit(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
     algo.reset()
     # testing the initial parameters of the env.
     assert algo.n_arms == 2
-    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.baseline_attr.step_count, 0)
     assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
     # test select arm method
     action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
@@ -494,9 +494,39 @@ def test_gradient_bandit(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
     assert reward in [1.0, 0.0]
     assert _new_state == 0
     assert done is False
+    # test step update of the update-function
     algo.update(chosen_arm=action, reward=reward)
     assert not np.array_equal(algo.baseline_attr.step_count, np.zeros(2, dtype=np.float32))
-    # test update method
+    # test value-update of the update method
     algo.reset()
     assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
     assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    algo.update(chosen_arm=1, reward=1)
+    assert np.array_equal(algo.values, np.array([-0.025, 0.025]))
+
+
+@pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("gradient_bandit_mean"))])
+def test_gradient_bandit_mean(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    # testing the initial parameters of the env.
+    assert algo.n_arms == 2
+    assert np.array_equal(algo.baseline_attr.step_count, 0)
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    algo.update(chosen_arm=1, reward=1)
+    assert algo.baseline_attr.mean_reward == 1
+    algo.update(chosen_arm=1, reward=1)
+    assert algo.baseline_attr.mean_reward == 1
+
+
+@pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("gradient_bandit_custom"))])
+def test_gradient_bandit_custom(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    # testing the initial parameters of the env.
+    assert algo.n_arms == 2
+    # testing of the updated value
+    algo.update(chosen_arm=1, reward=1)
+    assert np.array_equal(algo.values, np.array([0.025, -0.025]))

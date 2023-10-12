@@ -37,7 +37,7 @@ class GradientBaseLineAttr:
         self.mean_reward = 0.0
         self.step_count = 0
 
-    def custom_function(self, list_of_param: list):
+    def custom_function(self):
         """
         The idea is that you can inheritate from this class, write a custom function which takes the necessary
         parameters as a list. Then the new class can be used as an input for the GradientBandit-class.
@@ -86,12 +86,13 @@ class GradientBandit(BaseLearningRule):
                 return baseline_att.mean_reward
 
             return _calc_baseline
+        if baseline_typ == BaseLinesTypes.CUSTOM:
 
-        def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
-            return baseline_att.custom_function()
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                return baseline_att.custom_function()
 
-        return _calc_baseline
-        # raise ValueError("method not implemented")
+            return _calc_baseline
+        raise ValueError("method not implemented")
 
     def calc_baseline(self, baseline_att: GradientBaseLineAttr) -> float:
         """calculate baseline for gradient algorithm
@@ -140,6 +141,7 @@ class GradientBandit(BaseLearningRule):
         action_prob_vec[chosen_arm] = 1 - action_prob
         # update via memory trick
         baseline = self.calc_baseline(baseline_att=self.baseline_attr)
+        print(baseline)
         gradients = (self.alpha * (reward - baseline)) * action_prob_vec
 
         # update values

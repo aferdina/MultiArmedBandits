@@ -141,7 +141,6 @@ class GradientBandit(BaseLearningRule):
         action_prob_vec[chosen_arm] = 1 - action_prob
         # update via memory trick
         baseline = self.calc_baseline(baseline_att=self.baseline_attr)
-        print(baseline)
         gradients = (self.alpha * (reward - baseline)) * action_prob_vec
 
         # update values

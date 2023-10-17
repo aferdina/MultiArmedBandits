@@ -12,7 +12,7 @@ app.layout = html.Div([
     
     html.Div(id='my-output'),
     html.Br(),
-    html.Label('Select how what Algorithm you want to test:'),
+    html.Label('Select what Algorithm you want to test:'),
     dcc.Dropdown(['EpsilonGreedy', 'ExploreThenCommit', 'UCBAlpha', 'LectureUCB',
                 'BoltzmannSimple', 'BoltzmannGeneral', 'GradientBandit'], '1', id='demo-dropdown'),
         html.Div(id='dd-output-container'),
@@ -38,3 +38,12 @@ def update_output_dropdown(value):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
+
+@dataclass
+class TestYaml:
+    algo: ALgorithms

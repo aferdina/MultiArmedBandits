@@ -5,10 +5,13 @@ from dash import html
 from dash.dependencies import Input, Output, State, ALL
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-
+from multiarmedbandits.run_algorithm.metrics import Algorithms, MetricNames
+from multiarmedbandits.environments.common import ArmDistTypes
 
 app = dash.Dash(__name__, prevent_initial_callbacks=True, suppress_callback_exceptions=True)
 
+# metrics = [i for i in MetricNames]
+algorithms = [i for i in Algorithms]
 all_options = {
     'EpsilonGreedy': ['epsilon', 'andererWert'],
     'ExploreThenCommit': ['wert', 'wert', 'wert'],
@@ -18,6 +21,8 @@ all_options = {
     'BoltzmannGeneral': [],
     'GradientBandit': [],
 }
+
+yaml_list = []
 
 
 def generate_inputs(config):
@@ -32,8 +37,23 @@ def generate_inputs(config):
 
 app.layout = html.Div([
     dcc.Dropdown(
+        id='mab_env-dropdown',
+        options=[{'label': k, 'value': k} for k in ArmDistTypes],
+        value='bernoulli'
+    ),
+    html.Br(),
+    html.Br(),
+    dcc.Dropdown(
+        id='metrics-dropdown',
+        options=[{'label': k, 'value': k} for k in MetricNames],
+        value='regret',
+        multi=True
+    ),
+    html.Div(id='display-metrics'),
+    html.Br(),
+    dcc.Dropdown(
         id='algo-dropdown',
-        options=[{'label': k, 'value': k} for k in all_options.keys()],
+        options=[{'label': k, 'value': k} for k in Algorithms],
         value='EpsilonGreedy'
     ),
     dbc.Button(id='btn-scrape',
@@ -67,6 +87,13 @@ app.layout = html.Div([
             ]),
     ])
 ])
+
+@app.callback(
+    Output('display-metrics', 'children'),
+    Input('metrics-dropdown', 'value')
+)
+def update_output(value):
+    return f'You have selected {value}'
 
 @app.callback(
     Output('display-inputs', 'children'),

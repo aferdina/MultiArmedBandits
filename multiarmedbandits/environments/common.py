@@ -14,6 +14,8 @@ class ArmDistTypes(StrEnum):
 
     GAUSSIAN = "gaussian"
     BERNOULLI = "bernoulli"
+    POISSON = "poisson"
+    EXPONENTIAL = "exponential"
 
 
 @dataclass
@@ -147,21 +149,44 @@ class BaseBanditEnv:
         )
 
     def _create_reward_function(self) -> Callable[[int], float]:
-        if self.distr_params.dist_type == ArmDistTypes.BERNOULLI:
+        match self.distr_params.dist_type:
+            case ArmDistTypes.BERNOULLI:
 
-            def _get_reward(action: int) -> float:
-                reward = 1.0 if np.random.uniform() < self.distr_params.mean_parameter[action] else 0.0
-                return reward
+                def _get_reward(action: int) -> float:
+                    reward = 1.0 if np.random.uniform() < self.distr_params.mean_parameter[action] else 0.0
+                    return reward
 
-            return _get_reward
-        if self.distr_params.dist_type == ArmDistTypes.GAUSSIAN:
+                return _get_reward
+            
+            case ArmDistTypes.GAUSSIAN:
 
-            def _get_reward(action: int) -> float:
-                return np.random.normal(
-                    loc=self.distr_params.mean_parameter[action],
-                    scale=self.distr_params.scale_parameter[action],
-                    size=None,
-                )
+                def _get_reward(action: int) -> float:
+                    return np.random.normal(
+                        loc=self.distr_params.mean_parameter[action],
+                        scale=self.distr_params.scale_parameter[action],
+                        size=None,
+                    )
 
-            return _get_reward
-        raise ValueError("Something went wrong")
+                return _get_reward
+            
+            case ArmDistTypes.POISSON:
+                
+                def _get_reward(action: int) -> float:
+                    return float(np.random.poisson(
+                        lam=self.distr_params.mean_parameter[action],
+                        size=None,
+                    ))
+
+                return _get_reward
+
+            case ArmDistTypes.EXPONENTIAL:
+                
+                def _get_reward(action: int) -> float:
+                    return np.random.exponential(
+                        scale=self.distr_params.mean_parameter[action],
+                        size=None,
+                    )
+
+                return _get_reward
+            
+            case _: ValueError("Distribution does not exist.")

@@ -7,7 +7,6 @@ from .expthencommit import ExploreThenCommit
 from .gradientbandit import BaseLinesTypes, GradientBandit, GradientBaseLineAttr
 from .thompson import ThompsonSampling
 from .ucb import LectureUCB, UCBAlpha
-from .thompson import ThompsonSampling
 
 __all__ = [
     RandomVariable.__name__,

@@ -16,7 +16,6 @@ from ..algorithms import (
     LectureUCB,
     ThompsonSampling,
     UCBAlpha,
-    ThompsonSampling,
 )
 
 

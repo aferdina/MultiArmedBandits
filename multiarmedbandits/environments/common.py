@@ -157,7 +157,7 @@ class BaseBanditEnv:
                     return reward
 
                 return _get_reward
-            
+
             case ArmDistTypes.GAUSSIAN:
 
                 def _get_reward(action: int) -> float:
@@ -168,19 +168,21 @@ class BaseBanditEnv:
                     )
 
                 return _get_reward
-            
+
             case ArmDistTypes.POISSON:
-                
+
                 def _get_reward(action: int) -> float:
-                    return float(np.random.poisson(
-                        lam=self.distr_params.mean_parameter[action],
-                        size=None,
-                    ))
+                    return float(
+                        np.random.poisson(
+                            lam=self.distr_params.mean_parameter[action],
+                            size=None,
+                        )
+                    )
 
                 return _get_reward
 
             case ArmDistTypes.EXPONENTIAL:
-                
+
                 def _get_reward(action: int) -> float:
                     return np.random.exponential(
                         scale=self.distr_params.mean_parameter[action],
@@ -188,5 +190,6 @@ class BaseBanditEnv:
                     )
 
                 return _get_reward
-            
-            case _: ValueError("Distribution does not exist.")
+
+            case _:
+                ValueError("Distribution does not exist.")

@@ -22,7 +22,9 @@ all_options = {
     'GradientBandit': [],
 }
 
+
 yaml_list = []
+number_of_arms = 5
 
 
 def generate_inputs(config):
@@ -34,13 +36,38 @@ def generate_inputs(config):
                     }, placeholder=str(config), type='text')
     ])
 
+def generate_arm_configs(config):
+    return html.Div([
+        f'Arm {config} mean',
+        dcc.Input(id={
+                        'type': 'dynamic-textbox',
+                        'index': f'arm{config}_mean'
+                    }, placeholder=str(config), type='text'),
+        f'Arm {config} scale',
+        dcc.Input(id={
+                        'type': 'dynamic-textbox',
+                        'index': f'arm{config}_scale'
+                    }, placeholder=str(config), type='text')
+    ])
 
 app.layout = html.Div([
+
+    html.Div([
+        "Number of arms: ",
+        dcc.Input(id='no_arms', value=2, type='text')
+    ]),
+    html.Br(),
+
     dcc.Dropdown(
         id='mab_env-dropdown',
         options=[{'label': k, 'value': k} for k in ArmDistTypes],
         value='bernoulli'
     ),
+    html.Hr(),
+
+    html.Div(id='display-inputs', children=[generate_arm_configs(i) for i in range(1,number_of_arms+1)]),
+
+    html.Hr(),
     html.Br(),
     html.Br(),
     dcc.Dropdown(
@@ -63,7 +90,7 @@ app.layout = html.Div([
                            ),
     html.Hr(),
 
-    html.Div(id='display-inputs', children=[generate_inputs(i) for i in all_options['EpsilonGreedy']]),
+    html.Div(id='configure-algo', children=[generate_inputs(i) for i in all_options['EpsilonGreedy']]),
 
     html.Hr(),
     dbc.Col([
@@ -96,7 +123,7 @@ def update_output(value):
     return f'You have selected {value}'
 
 @app.callback(
-    Output('display-inputs', 'children'),
+    Output('configure-algo', 'children'),
     Input('algo-dropdown', 'value'),
 )
 def set_configs_children(scraping_setting):

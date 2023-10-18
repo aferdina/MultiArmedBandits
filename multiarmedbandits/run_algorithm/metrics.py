@@ -14,8 +14,8 @@ from ..algorithms import (
     ExploreThenCommit,
     GradientBandit,
     LectureUCB,
-    UCBAlpha,
     ThompsonSampling,
+    UCBAlpha,
 )
 
 

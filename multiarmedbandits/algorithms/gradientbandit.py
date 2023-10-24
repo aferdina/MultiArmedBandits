@@ -18,11 +18,6 @@ class BaseLinesTypes(StrEnum):
 
     ZERO = "zero"
     MEAN = "mean"
-    MEDIAN = "median"
-    CUSTOM = "custom"
-
-
-# diese Klasse abstrahieren und mean reward erbt davon
 
 
 @dataclass

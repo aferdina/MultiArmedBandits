@@ -20,6 +20,7 @@ class BaseLinesTypes(StrEnum):
     ZERO = "zero"
     MEAN = "mean"
     MEDIAN = "median"
+    CONSTANT = "constant"
 
 
 @dataclass
@@ -30,6 +31,7 @@ class GradientBaseLineAttr:
     mean_reward: float = 0.0
     step_count: int = 0
     median: float = 0
+    constant: float = 0
     reward_history = []
 
     def reset(self):
@@ -89,6 +91,13 @@ class GradientBandit(BaseLearningRule):
                 baseline_att.reward_history.append(self.update_for_median)
                 baseline_att.median = statistics.median(baseline_att.reward_history)
                 return baseline_att.median
+
+            return _calc_baseline
+
+        if baseline_typ == BaseLinesTypes.CONSTANT:
+
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                return baseline_att.constant
 
             return _calc_baseline
 

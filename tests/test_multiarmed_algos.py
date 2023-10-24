@@ -516,8 +516,8 @@ def test_gradient_bandit_mean(env: BaseBanditEnv, algo: mab_algo.GradientBandit)
     assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
     algo.update(chosen_arm=1, reward=1)
     assert algo.baseline_attr.mean_reward == 1
-    algo.update(chosen_arm=1, reward=1)
-    assert algo.baseline_attr.mean_reward == 1
+    algo.update(chosen_arm=1, reward=2)
+    assert algo.baseline_attr.mean_reward == 1.5
 
 
 @pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("gradient_bandit_median"))])
@@ -533,3 +533,19 @@ def test_gradient_bandit_median(env: BaseBanditEnv, algo: mab_algo.GradientBandi
     assert algo.baseline_attr.median == 2
     algo.update(chosen_arm=1, reward=5)
     assert algo.baseline_attr.median == 3.5
+
+
+@pytest.mark.parametrize(
+    "env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("gradient_bandit_constant"))]
+)
+def test_gradient_bandit_constant(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    # testing the initial parameters of the env.
+    assert algo.n_arms == 2
+    assert np.array_equal(algo.baseline_attr.step_count, 0)
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+    algo.update(chosen_arm=1, reward=2)
+    assert np.array_equal(algo.values, np.array([0.025, -0.025]))
+    assert algo.baseline_attr.constant == 3

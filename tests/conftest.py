@@ -147,3 +147,12 @@ def gradient_bandit_median(bernoulli_env) -> mab_algos.GradientBandit:
         baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.MEDIAN),
         bandit_env=bernoulli_env,
     )
+
+
+@pytest.fixture(scope="module")
+def gradient_bandit_constant(bernoulli_env) -> mab_algos.GradientBandit:
+    return mab_algos.GradientBandit(
+        alpha=0.05,
+        baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.CONSTANT, constant=3),
+        bandit_env=bernoulli_env,
+    )

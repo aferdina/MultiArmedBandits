@@ -51,3 +51,30 @@ def get_args(cls, algo: bool = True):
             return_args[key] = get_args(cls=value, algo=False)
 
     return return_args
+
+
+def get_empty_assignments(args: dict, n_arms):
+    """
+    funtion to get empty assignments dict
+    """
+    for key, value in args.items():
+        
+        if value == InputTypes.INT:
+            args[value] = None
+        
+        elif value == InputTypes.FLOAT:
+            args[value] = None
+
+        elif value == InputTypes.INT_LIST:
+            args[value] = n_arms*[None]
+
+        elif value == InputTypes.FLOAT_LIST:
+            args[value] = n_arms*[None]
+
+        elif type(value) == dict:
+            get_empty_assignments(value, n_arms)
+
+        else: #enum-case
+            None
+
+        

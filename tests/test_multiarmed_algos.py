@@ -518,15 +518,3 @@ def test_gradient_bandit_mean(env: BaseBanditEnv, algo: mab_algo.GradientBandit)
     assert algo.baseline_attr.mean_reward == 1
     algo.update(chosen_arm=1, reward=1)
     assert algo.baseline_attr.mean_reward == 1
-
-
-@pytest.mark.parametrize("env, algo", [(pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("gradient_bandit_custom"))])
-def test_gradient_bandit_custom(env: BaseBanditEnv, algo: mab_algo.GradientBandit):
-    # resetting environment and algorithm
-    _new_state, info = env.reset()
-    algo.reset()
-    # testing the initial parameters of the env.
-    assert algo.n_arms == 2
-    # testing of the updated value
-    algo.update(chosen_arm=1, reward=1)
-    assert np.array_equal(algo.values, np.array([0.025, -0.025]))

@@ -18,6 +18,7 @@ class BaseLinesTypes(StrEnum):
 
     ZERO = "zero"
     MEAN = "mean"
+    MEDIAN = "median"
     CUSTOM = "custom"
 
 
@@ -36,13 +37,6 @@ class GradientBaseLineAttr:
         """reset statistics"""
         self.mean_reward = 0.0
         self.step_count = 0
-
-    def custom_function(self):
-        """
-        The idea is that you can inheritate from this class, write a custom function which takes the necessary
-        parameters as a list. Then the new class can be used as an input for the GradientBandit-class.
-        """
-        pass
 
 
 class GradientBandit(BaseLearningRule):
@@ -86,12 +80,7 @@ class GradientBandit(BaseLearningRule):
                 return baseline_att.mean_reward
 
             return _calc_baseline
-        if baseline_typ == BaseLinesTypes.CUSTOM:
 
-            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
-                return baseline_att.custom_function()
-
-            return _calc_baseline
         raise ValueError("method not implemented")
 
     def calc_baseline(self, baseline_att: GradientBaseLineAttr) -> float:

@@ -23,7 +23,7 @@ all_options = {
 
 
 yaml_list = []
-number_of_arms = 5
+number_of_arms = 2
 
 
 def generate_inputs(config):
@@ -46,10 +46,11 @@ def generate_arm_configs(config):
 app.layout = html.Div(
     [
         html.Div(["Number of arms: ", dcc.Input(id="no_arms", value=2, type="text")]),
+        html.Div(id="display-number-of-arms"),
         html.Br(),
         dcc.Dropdown(id="mab_env-dropdown", options=[{"label": k, "value": k} for k in ArmDistTypes], value="bernoulli"),
         html.Hr(),
-        html.Div(id="display-inputs", children=[generate_arm_configs(i) for i in range(1, number_of_arms + 1)]),
+        html.Div(id="display-inputs", children=[generate_arm_configs(i) for i in range(1, 2)]),
         html.Hr(),
         html.Br(),
         html.Br(),
@@ -91,10 +92,23 @@ app.layout = html.Div(
     ]
 )
 
+@app.callback(Output("display-number-of-arms", "children"), Input("no_arms", "value"))
+def update_output(value):
+    global number_of_arms
+    number_of_arms = value
+    print(number_of_arms)
+    return f"You have selected {value}"
 
 @app.callback(Output("display-metrics", "children"), Input("metrics-dropdown", "value"))
 def update_output(value):
     return f"You have selected {value}"
+
+@app.callback(
+    Output("display-inputs", "children"),
+    Input("no_arms", "value"),
+)
+def set_configs_children_number_arms(value):
+    return dbc.Col(children=[generate_arm_configs(i) for i in range(1, int(value) + 1)], className="placeholder")
 
 
 @app.callback(

@@ -57,24 +57,25 @@ def get_empty_assignments(args: dict, n_arms):
     """
     funtion to get empty assignments dict
     """
+    return_assignments = dict()
     for key, value in args.items():
         
         if value == InputTypes.INT:
-            args[value] = None
+            return_assignments[key] = None
         
         elif value == InputTypes.FLOAT:
-            args[value] = None
+            return_assignments[key] = None
 
         elif value == InputTypes.INT_LIST:
-            args[value] = n_arms*[None]
+            return_assignments[key] = n_arms*[None]
 
         elif value == InputTypes.FLOAT_LIST:
-            args[value] = n_arms*[None]
+            return_assignments[key] = n_arms*[None]
 
         elif type(value) == dict:
-            get_empty_assignments(value, n_arms)
+            return_assignments[key] = get_empty_assignments(value, n_arms)
 
         else: #enum-case
-            None
-
+            return_assignments[key] = None
+    return return_assignments
         

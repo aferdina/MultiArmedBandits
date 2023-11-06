@@ -54,6 +54,7 @@ explorethencommit_compare.plot_multiple_mabs(
         MetricNames.AVERAGE_REWARD,
         MetricNames.OPTIM_PERCENTAGE,
         MetricNames.REGRETCONVERGENCE,
+        MetricNames.CUMULATIVE_REWARD,
     ],
     named_metrics=metrics,
 )

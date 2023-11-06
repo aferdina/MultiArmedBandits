@@ -32,6 +32,22 @@ from multiarmedbandits.environments import BaseBanditEnv
                 0,
             ],
         ),
+        (
+            pytest.lazy_fixture("poisson_env"),
+            10,
+            7,
+            [
+                1,
+            ],
+        ),
+        (
+            pytest.lazy_fixture("exponential_env"),
+            10,
+            0.7,
+            [
+                1,
+            ],
+        ),
     ],
 )
 def test_env_init(env: BaseBanditEnv, max_steps: int, max_mean: int, max_mean_position: List[int]) -> None:

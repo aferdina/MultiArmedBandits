@@ -14,6 +14,7 @@ from ..algorithms import (
     ExploreThenCommit,
     GradientBandit,
     LectureUCB,
+    ThompsonSampling,
     UCBAlpha,
 )
 
@@ -93,6 +94,7 @@ class Algorithms(StrEnum):
     BOLTZMANNSIMPLE = BoltzmannSimple.__name__
     BOLTZMANNRANDOM = BoltzmannGeneral.__name__
     GRADIENTBANDIT = GradientBandit.__name__
+    THOMPSON = ThompsonSampling.__name__
 
     def __str__(self):
         return self.name.capitalize()

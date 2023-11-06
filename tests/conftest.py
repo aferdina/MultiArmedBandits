@@ -2,6 +2,7 @@ import pytest
 
 import multiarmedbandits.algorithms as mab_algos
 import multiarmedbandits.environments as mab_envs
+from multiarmedbandits.utils.posterior import PriorType
 
 
 @pytest.fixture(scope="module")
@@ -21,6 +22,28 @@ def bernoulli_env() -> mab_envs.BaseBanditEnv:
     return mab_envs.BaseBanditEnv(
         distr_params=mab_envs.DistParameter(
             dist_type=mab_envs.ArmDistTypes.BERNOULLI,
+            mean_parameter=[0.1, 0.7],
+        ),
+        max_steps=10,
+    )
+
+
+@pytest.fixture(scope="module")
+def poisson_env() -> mab_envs.BaseBanditEnv:
+    return mab_envs.BaseBanditEnv(
+        distr_params=mab_envs.DistParameter(
+            dist_type=mab_envs.ArmDistTypes.POISSON,
+            mean_parameter=[1, 7],
+        ),
+        max_steps=10,
+    )
+
+
+@pytest.fixture(scope="module")
+def exponential_env() -> mab_envs.BaseBanditEnv:
+    return mab_envs.BaseBanditEnv(
+        distr_params=mab_envs.DistParameter(
+            dist_type=mab_envs.ArmDistTypes.EXPONENTIAL,
             mean_parameter=[0.1, 0.7],
         ),
         max_steps=10,
@@ -134,6 +157,15 @@ def gradient_bandit(bernoulli_env) -> mab_algos.GradientBandit:
 
 
 @pytest.fixture(scope="module")
+def gradient_bandit_constant(bernoulli_env) -> mab_algos.GradientBandit:
+    return mab_algos.GradientBandit(
+        alpha=0.05,
+        baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.CONSTANT, constant=3),
+        bandit_env=bernoulli_env,
+    )
+
+
+@pytest.fixture(scope="module")
 def gradient_bandit_mean(bernoulli_env) -> mab_algos.GradientBandit:
     return mab_algos.GradientBandit(
         alpha=0.05, baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.MEAN), bandit_env=bernoulli_env
@@ -150,9 +182,61 @@ def gradient_bandit_median(bernoulli_env) -> mab_algos.GradientBandit:
 
 
 @pytest.fixture(scope="module")
-def gradient_bandit_constant(bernoulli_env) -> mab_algos.GradientBandit:
-    return mab_algos.GradientBandit(
-        alpha=0.05,
-        baseline_attr=mab_algos.GradientBaseLineAttr(type=mab_algos.BaseLinesTypes.CONSTANT, constant=3),
-        bandit_env=bernoulli_env,
-    )
+def config_empty():
+    return {}
+
+
+@pytest.fixture(scope="module")
+def config_unknown_prior():
+    return {"prior": "hello"}
+
+
+@pytest.fixture(scope="module")
+def config_beta():
+    return {"prior": PriorType.BETA}
+
+
+@pytest.fixture(scope="module")
+def config_normal():
+    return {"prior": PriorType.NORMAL}
+
+
+@pytest.fixture(scope="module")
+def config_nig():
+    return {"prior": PriorType.NIG}
+
+
+@pytest.fixture(scope="module")
+def thompson_beta_without_info(bernoulli_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.BETA}
+    return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_beta_with_info(bernoulli_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.BETA, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
+    return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_normal_without_info(gaussian_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.NORMAL}
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_normal_with_info(gaussian_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.NORMAL, "mean": [1.0, 2.0], "scale": [1.0, 2.0]}
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_nig_without_info(gaussian_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.NIG}
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_nig_with_info(gaussian_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.NIG, "mean": [1.0, 2.0], "lambda": [2.0, 2.0], "alpha": [2.0, 1.0], "beta": [1.0, 2.0]}
+    return mab_algos.ThompsonSampling(bandit_env=gaussian_env, config=config)

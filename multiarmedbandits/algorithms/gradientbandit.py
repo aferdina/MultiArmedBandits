@@ -103,6 +103,7 @@ class GradientBandit(BaseLearningRule):
 
         raise ValueError("method not implemented")
 
+    # pylint: disable=E0202
     def calc_baseline(self, baseline_att: GradientBaseLineAttr) -> float:
         """calculate baseline for gradient algorithm
 

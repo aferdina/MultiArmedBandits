@@ -2,6 +2,7 @@
 module for gradient bandit algorithm
 """
 
+import statistics
 from dataclasses import dataclass
 from typing import Callable
 
@@ -18,6 +19,8 @@ class BaseLinesTypes(StrEnum):
 
     ZERO = "zero"
     MEAN = "mean"
+    MEDIAN = "median"
+    CONSTANT = "constant"
 
 
 @dataclass
@@ -27,11 +30,16 @@ class GradientBaseLineAttr:
     type: BaseLinesTypes
     mean_reward: float = 0.0
     step_count: int = 0
+    median: float = 0
+    constant: float = 0
+    reward_history = []
 
     def reset(self):
         """reset statistics"""
         self.mean_reward = 0.0
         self.step_count = 0
+        self.median = 0
+        self.reward_history = []
 
 
 class GradientBandit(BaseLearningRule):
@@ -56,6 +64,8 @@ class GradientBandit(BaseLearningRule):
         self.alpha: float = alpha
         self.calc_baseline = self._create_calc_baseline(baseline_typ=baseline_attr.type)
         self.baseline_attr = baseline_attr
+        # for median calculation
+        self.update_for_median = 0
 
     def _create_calc_baseline(self, baseline_typ: BaseLinesTypes) -> Callable[[GradientBaseLineAttr], float]:
         """create baseline function for given baseline type
@@ -75,8 +85,25 @@ class GradientBandit(BaseLearningRule):
                 return baseline_att.mean_reward
 
             return _calc_baseline
+        if baseline_typ == BaseLinesTypes.MEDIAN:
+
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                baseline_att.reward_history.append(self.update_for_median)
+                baseline_att.median = statistics.median(baseline_att.reward_history)
+                return baseline_att.median
+
+            return _calc_baseline
+
+        if baseline_typ == BaseLinesTypes.CONSTANT:
+
+            def _calc_baseline(baseline_att: GradientBaseLineAttr) -> float:
+                return baseline_att.constant
+
+            return _calc_baseline
+
         raise ValueError("method not implemented")
 
+    # pylint: disable=E0202
     def calc_baseline(self, baseline_att: GradientBaseLineAttr) -> float:
         """calculate baseline for gradient algorithm
 
@@ -122,6 +149,8 @@ class GradientBandit(BaseLearningRule):
         # increment the chosen arm
         action_prob_vec = np.array([-1 * action_prob for _ in range(self.n_arms)])
         action_prob_vec[chosen_arm] = 1 - action_prob
+        # update for median
+        self.update_for_median = reward
         # update via memory trick
         baseline = self.calc_baseline(baseline_att=self.baseline_attr)
         gradients = (self.alpha * (reward - baseline)) * action_prob_vec

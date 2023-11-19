@@ -19,8 +19,6 @@ class NormalPosterior(AbstractPosterior):
     def __init__(self, n_arms: int, config: Dict[str, Any], bandit_scale: List[float]) -> None:
         self.config = config
         self.n_arms = n_arms
-        self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
         # scale parameters of Gaussian bandit (known)
         self.bandit_scale = bandit_scale
         # Initialize the mean parameter of the Normal distribution for each arm
@@ -37,77 +35,18 @@ class NormalPosterior(AbstractPosterior):
             self.scale = np.ones(self.n_arms)
 
     def sample(self) -> np.ndarray:
-        return norm.rvs(self.mean, self.scale)  # Samples from the normal distribution for each arm
+        return norm.rvs(loc=self.mean, scale=self.scale)  # Samples from the normal distribution for each arm
 
     def update(self, action: int, reward: int) -> None:
-        # Update counts and values (via memory trick)
-        self.counts[action] = self.counts[action] + 1
-        self.values[action] = self.memory_trick(
-            times_played=self.counts[action], old_mean=self.values[action], value_to_add=reward
-        )
-        # self.values[action] = ((times_played - 1) / times_played) * old_value + (1 / times_played) * reward
-
-        # Update the mean parameter for the selected arm, based on the received reward
+        # Update the parameters of the normal distribution for the selected arm, based on the received reward
         old_var = self.scale[action] ** 2
         bandit_var = self.bandit_scale[action] ** 2
-        self.mean[action] = self.update_mean(
-            old_mean=self.mean[action],
-            old_var=old_var,
-            bandit_var=bandit_var,
-            new_value=self.values[action],
-            times_played=self.counts[action],
-        )
-
-        # Update the scale parameter for the selected arm, based on the received reward
-        self.scale[action] = self.update_scale(old_var=old_var, bandit_var=bandit_var, times_played=self.counts[action])
-
-    @staticmethod
-    def memory_trick(times_played: int, old_mean: float, value_to_add: float) -> float:
-        """calculate mean value using memory trick
-
-        Args:
-            times_played (int): number of times played
-            old_mean (float): old mean from `times_played`-1 values
-            value_to_add (float): value to add for the mean
-
-        Returns:
-            float: updated mean value
-        """
-        return ((times_played - 1) / times_played) * old_mean + (1 / times_played) * value_to_add
-
-    @staticmethod
-    def update_mean(old_mean, old_var, bandit_var, new_value, times_played) -> float:
-        """calculate the updated mean parameter of the posterior distribution
-
-        Args:
-            old_mean (float): mean parameter value before update
-            old_var (float): variance parameter value before update (scale ** 2)
-            bandit_var (float): variance parameter of bandit's arm (scale ** 2)
-            new_value (float): updated action value (mean of rewards)
-            times_played (int): number of times played
-
-        Returns:
-            float: updated mean parameter
-        """
-        return (old_mean * bandit_var + times_played * old_var * new_value) / (bandit_var + times_played * old_var)
-
-    @staticmethod
-    def update_scale(old_var, bandit_var, times_played) -> float:
-        """calculate the updated scale parameter of the posterior distribution
-
-        Args:
-            old_var (float): variance parameter value before update (scale ** 2)
-            bandit_var (float): variance parameter of bandit's arm (scale ** 2)
-            times_played (int): number of times played
-
-        Returns:
-            float: updated scale parameter
-        """
-        return np.sqrt((old_var * bandit_var) / (bandit_var + times_played * old_var))
+        # update mean using old mean and old scale
+        self.mean[action] = (self.mean[action] * bandit_var + old_var * reward) / (bandit_var + old_var)
+        # update scale using old scale
+        self.scale[action] = np.sqrt((bandit_var * old_var) / (bandit_var + old_var)) 
 
     def reset(self):
-        self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
         # Reset the mean parameter of the Normal distribution for each arm
         if "mean" in self.config:
             self.check_len_params(self.config["mean"], self.n_arms)
@@ -133,9 +72,6 @@ class NIGPosterior(AbstractPosterior):
     def __init__(self, n_arms: int, config: Dict[str, Any]) -> None:
         self.config = config
         self.n_arms = n_arms
-        self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.sqsum: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)  # sum of squares
         # Initialize the parameters of the NIG distribution for each arm
         if "mean" in self.config:
             self.check_len_params(self.config["mean"], self.n_arms)
@@ -160,55 +96,22 @@ class NIGPosterior(AbstractPosterior):
 
     def sample(self) -> np.ndarray:
         # sample variance from an inverse gamma distribution with parameters alpha and beta
-        variances = invgamma.rvs(self.alpha, scale=self.beta)
+        variances = invgamma.rvs(a=self.alpha, scale=self.beta)
         # sample from a normal distribution N(mean, variance/lambda_p)
-        return norm.rvs(self.mean, variances)
+        return norm.rvs(loc=self.mean, scale=np.sqrt(variances/self.lambda_p))
 
     def update(self, action: int, reward: int) -> None:
-        # Update counts and values (via memory trick)
-        self.counts[action] = self.counts[action] + 1
-        self.values[action] = self.memory_trick(
-            times_played=self.counts[action], old_mean=self.values[action], value_to_add=reward
-        )
-        # Update sum of squared rewards
-        self.sqsum[action] = self.sqsum[action] + reward**2
-
         # Update the parameters of the NIG distribution for the selected arm, based on the received reward
-        old_mean = self.mean[action]
-        old_lambda = self.lambda_p[action]
-        times_played = self.counts[action]
-
-        # lambda
-        self.lambda_p[action] = 1 / ((1 / old_lambda) + times_played)
-        new_lambda = self.lambda_p[action]
-        # mean
-        self.mean[action] = new_lambda * (old_mean / old_lambda + times_played * self.values[action])
-        new_mean = self.mean[action]
-        # alpha
-        self.alpha[action] = self.alpha[action] + times_played / 2
-        # beta
-        self.beta[action] = self.beta[action] + 1 / 2 * (
-            (old_mean**2) / old_lambda + self.sqsum[action] - (new_mean**2) / new_lambda
-        )
-
-    @staticmethod
-    def memory_trick(times_played: int, old_mean: float, value_to_add: float) -> float:
-        """calculate mean value using memory trick
-
-        Args:
-            times_played (int): number of times played
-            old_mean (float): old mean from `times_played`-1 values
-            value_to_add (float): value to add for the mean
-
-        Returns:
-            float: updated mean value
-        """
-        return ((times_played - 1) / times_played) * old_mean + (1 / times_played) * value_to_add
+        # update beta using old lambda_p and old mean
+        self.beta[action] = self.beta[action] + 0.5 * ((self.mean[action] - reward)**2) / (self.lambda_p[action] + 1)
+        # update mean using old lambda_p
+        self.mean[action] = (self.mean[action] + self.lambda_p[action] * reward) / (self.lambda_p[action] + 1)
+        # update lambda
+        self.lambda_p[action] = self.lambda_p[action] / (self.lambda_p[action] + 1)
+        # update alpha
+        self.alpha[action] = self.alpha[action] + 0.5
 
     def reset(self):
-        self.counts: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.values: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)
-        self.sqsum: np.ndarray = np.zeros(self.n_arms, dtype=np.float32)  # sum of squares
         # Reset the parameters of the NIG distribution for each arm
         if "mean" in self.config:
             self.check_len_params(self.config["mean"], self.n_arms)

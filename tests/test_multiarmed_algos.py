@@ -632,8 +632,6 @@ def test_thompson_normal(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) ->
     _new_state, info = env.reset()
     algo.reset()
     assert algo.n_arms == 2
-    assert np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.zeros(2, dtype=np.float32))
 
     init_mean = algo.posterior.mean.copy()
     init_scale = algo.posterior.scale.copy()
@@ -646,30 +644,39 @@ def test_thompson_normal(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) ->
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
-    assert not np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
+    assert algo.posterior.scale[action] != init_scale[action]
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.scale[np.abs(action - 1)] == init_scale[np.abs(action - 1)]
 
     # test update method
     algo.reset()
-    assert np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.zeros(2, dtype=np.float32))
     assert np.array_equal(algo.posterior.mean, init_mean)
     assert np.array_equal(algo.posterior.scale, init_scale)
-    reward = 1.0
-    action = 1
 
-    algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 1], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 1.0], dtype=np.float32))
     reward = 1.0
     action = 1
     algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 2], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 1.0], dtype=np.float32))
+    assert algo.posterior.scale[action] != init_scale[action]
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.scale[np.abs(action - 1)] == init_scale[np.abs(action - 1)]
+    init_mean = algo.posterior.mean.copy()
+    init_scale = algo.posterior.scale.copy()
+
+    reward = 1.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.scale[action] != init_scale[action]
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.scale[np.abs(action - 1)] == init_scale[np.abs(action - 1)]
+    init_mean = algo.posterior.mean.copy()
+    init_scale = algo.posterior.scale.copy()
+
     reward = 4.0
     action = 1
     algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 3], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 2.0], dtype=np.float32))
+    assert algo.posterior.scale[action] != init_scale[action]
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.scale[np.abs(action - 1)] == init_scale[np.abs(action - 1)]
 
 
 @pytest.mark.parametrize(
@@ -684,9 +691,6 @@ def test_thompson_nig(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> No
     _new_state, info = env.reset()
     algo.reset()
     assert algo.n_arms == 2
-    assert np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.sqsum, np.zeros(2, dtype=np.float32))
 
     init_mean = algo.posterior.mean.copy()
     init_lambda = algo.posterior.lambda_p.copy()
@@ -701,33 +705,56 @@ def test_thompson_nig(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> No
     assert _new_state == 0
     assert done is False
     algo.update(chosen_arm=action, reward=reward)
-    assert not np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
+    assert algo.posterior.lambda_p[action] != init_lambda[action]
+    assert algo.posterior.alpha[action] == init_alpha[action] + 0.5
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.lambda_p[np.abs(action - 1)] == init_lambda[np.abs(action - 1)]
+    assert algo.posterior.alpha[np.abs(action - 1)] == init_alpha[np.abs(action - 1)]
+    assert algo.posterior.beta[np.abs(action - 1)] == init_beta[np.abs(action - 1)]
 
     # test update method
     algo.reset()
-    assert np.array_equal(algo.posterior.counts, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.zeros(2, dtype=np.float32))
-    assert np.array_equal(algo.posterior.sqsum, np.zeros(2, dtype=np.float32))
     assert np.array_equal(algo.posterior.mean, init_mean)
     assert np.array_equal(algo.posterior.lambda_p, init_lambda)
     assert np.array_equal(algo.posterior.alpha, init_alpha)
     assert np.array_equal(algo.posterior.beta, init_beta)
-    reward = 1.0
-    action = 1
 
-    algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 1], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 1.0], dtype=np.float32))
-    assert np.array_equal(algo.posterior.sqsum, np.array([0, 1.0], dtype=np.float32))
     reward = 1.0
     action = 1
     algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 2], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 1.0], dtype=np.float32))
-    assert np.array_equal(algo.posterior.sqsum, np.array([0, 2.0], dtype=np.float32))
+    assert algo.posterior.lambda_p[action] != init_lambda[action]
+    assert algo.posterior.alpha[action] == init_alpha[action] + 0.5
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.lambda_p[np.abs(action - 1)] == init_lambda[np.abs(action - 1)]
+    assert algo.posterior.alpha[np.abs(action - 1)] == init_alpha[np.abs(action - 1)]
+    assert algo.posterior.beta[np.abs(action - 1)] == init_beta[np.abs(action - 1)]
+    init_mean = algo.posterior.mean.copy()
+    init_lambda = algo.posterior.lambda_p.copy()
+    init_alpha = algo.posterior.alpha.copy()
+    init_beta = algo.posterior.beta.copy()
+
     reward = 4.0
     action = 1
     algo.update(chosen_arm=action, reward=reward)
-    assert np.array_equal(algo.posterior.counts, np.array([0, 3], dtype=np.float32))
-    assert np.array_equal(algo.posterior.values, np.array([0, 2.0], dtype=np.float32))
-    assert np.array_equal(algo.posterior.sqsum, np.array([0, 18.0], dtype=np.float32))
+    assert algo.posterior.lambda_p[action] != init_lambda[action]
+    assert algo.posterior.alpha[action] == init_alpha[action] + 0.5
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.lambda_p[np.abs(action - 1)] == init_lambda[np.abs(action - 1)]
+    assert algo.posterior.alpha[np.abs(action - 1)] == init_alpha[np.abs(action - 1)]
+    assert algo.posterior.beta[np.abs(action - 1)] == init_beta[np.abs(action - 1)]
+    init_mean = algo.posterior.mean.copy()
+    init_lambda = algo.posterior.lambda_p.copy()
+    init_alpha = algo.posterior.alpha.copy()
+    init_beta = algo.posterior.beta.copy()
+
+    action = 0
+    reward = algo.posterior.mean[action]
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.beta[action] == init_beta[action]
+    assert algo.posterior.lambda_p[action] != init_lambda[action]
+    assert algo.posterior.alpha[action] == init_alpha[action] + 0.5
+    assert algo.posterior.mean[np.abs(action - 1)] == init_mean[np.abs(action - 1)]
+    assert algo.posterior.lambda_p[np.abs(action - 1)] == init_lambda[np.abs(action - 1)]
+    assert algo.posterior.alpha[np.abs(action - 1)] == init_alpha[np.abs(action - 1)]
+    assert algo.posterior.beta[np.abs(action - 1)] == init_beta[np.abs(action - 1)]
+

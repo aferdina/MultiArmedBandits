@@ -559,6 +559,7 @@ def test_gradient_bandit_constant(env: BaseBanditEnv, algo: mab_algo.GradientBan
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_unknown_prior")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_empty")),
         (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_beta")),
+        (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_gamma")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_normal")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_nig")),
     ],
@@ -617,6 +618,60 @@ def test_thompson_beta(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> N
     action = 0
     algo.update(chosen_arm=action, reward=reward)
     assert algo.posterior.alpha[action] == init_alpha[action]
+    assert algo.posterior.beta[action] == init_beta[action] + 1
+
+
+@pytest.mark.parametrize(
+    "env, algo",
+    [
+        (pytest.lazy_fixture("poisson_env"), pytest.lazy_fixture("thompson_gamma_without_info")),
+        (pytest.lazy_fixture("poisson_env"), pytest.lazy_fixture("thompson_gamma_with_info")),
+    ],
+)
+def test_thompson_gamma(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> None:
+    # resetting environment and algorithm
+    _new_state, info = env.reset()
+    algo.reset()
+    assert algo.n_arms == 2
+    assert np.array_equal(algo.counts, np.zeros(2, dtype=np.float32))
+    assert np.array_equal(algo.values, np.zeros(2, dtype=np.float32))
+
+    init_alpha = algo.posterior.alpha.copy()
+    init_beta = algo.posterior.beta.copy()
+
+    # test selected arm method
+    action = algo.select_arm(arm_attrib=info[INFODICT.ARMATTRIBUTES])
+    assert action in range(2)
+    # test environment step for given action
+    _new_state, reward, done, info = env.step(action=action)
+    assert reward % 1 == 0
+    assert _new_state == 0
+    assert done is False
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.alpha[action] == init_alpha[action] + reward
+    assert algo.posterior.beta[action] == init_beta[action] + 1
+
+    # test update method
+    algo.reset()
+    assert np.array_equal(algo.posterior.alpha, init_alpha)
+    assert np.array_equal(algo.posterior.beta, init_beta)
+    reward = 1.0
+    action = 1
+
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.alpha[action] == init_alpha[action] + 1
+    assert algo.posterior.beta[action] == init_beta[action] + 1
+
+    reward = 1.0
+    action = 1
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.alpha[action] == init_alpha[action] + 2
+    assert algo.posterior.beta[action] == init_beta[action] + 2
+
+    reward = 4.0
+    action = 0
+    algo.update(chosen_arm=action, reward=reward)
+    assert algo.posterior.alpha[action] == init_alpha[action] + 4
     assert algo.posterior.beta[action] == init_beta[action] + 1
 
 

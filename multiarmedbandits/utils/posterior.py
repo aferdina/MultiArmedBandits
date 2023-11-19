@@ -6,18 +6,20 @@ from strenum import StrEnum
 
 from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv
 from multiarmedbandits.utils.continuous_posteriors import NIGPosterior, NormalPosterior
-from multiarmedbandits.utils.discrete_posteriors import BetaPosterior
+from multiarmedbandits.utils.discrete_posteriors import BetaPosterior, GammaPosterior
 
 
 class PriorType(StrEnum):
     """
     Specify different types of prior distributions:
         - the beta distribution is conjugate to the bernoulli likelihood
+        - the gamma distribution is conjugate to the poisson likelihood
         - the normal distribution is conjugate to a normal distribution with known variance
         - the normal-inverse-gamma is conjugate to a normal distribution with unknown variance
     """
 
     BETA = "beta"
+    GAMMA = "gamma"
     NORMAL = "normal"
     NIG = "normal-inverse-gamma"
 
@@ -40,6 +42,9 @@ class PosteriorFactory:
         if prior == PriorType.BETA:
             assert self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI, "Bandit is not a Bernoulli bandit."
             return BetaPosterior(self.n_arms, config=config)
+        if prior == PriorType.GAMMA:
+            assert self.bandit_parameters.dist_type == ArmDistTypes.POISSON, "Bandit is not a Poisson bandit."
+            return GammaPosterior(self.n_arms, config=config)
         if prior == PriorType.NORMAL:
             assert self.bandit_parameters.dist_type == ArmDistTypes.GAUSSIAN, "Bandit is not a Gaussian bandit."
             bandit_scale = self.bandit_parameters.scale_parameter

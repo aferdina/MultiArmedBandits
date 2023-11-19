@@ -197,6 +197,11 @@ def config_beta():
 
 
 @pytest.fixture(scope="module")
+def config_gamma():
+    return {"prior": PriorType.GAMMA}
+
+
+@pytest.fixture(scope="module")
 def config_normal():
     return {"prior": PriorType.NORMAL}
 
@@ -216,6 +221,18 @@ def thompson_beta_without_info(bernoulli_env) -> mab_algos.ThompsonSampling:
 def thompson_beta_with_info(bernoulli_env) -> mab_algos.ThompsonSampling:
     config = {"prior": PriorType.BETA, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
     return mab_algos.ThompsonSampling(bandit_env=bernoulli_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_gamma_without_info(poisson_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA}
+    return mab_algos.ThompsonSampling(bandit_env=poisson_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_gamma_with_info(poisson_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
+    return mab_algos.ThompsonSampling(bandit_env=poisson_env, config=config)
 
 
 @pytest.fixture(scope="module")

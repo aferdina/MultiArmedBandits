@@ -197,8 +197,13 @@ def config_beta():
 
 
 @pytest.fixture(scope="module")
-def config_gamma():
-    return {"prior": PriorType.GAMMA}
+def config_gamma_discrete():
+    return {"prior": PriorType.GAMMA_DISC}
+
+
+@pytest.fixture(scope="module")
+def config_gamma_continuous():
+    return {"prior": PriorType.GAMMA_CONT}
 
 
 @pytest.fixture(scope="module")
@@ -224,15 +229,27 @@ def thompson_beta_with_info(bernoulli_env) -> mab_algos.ThompsonSampling:
 
 
 @pytest.fixture(scope="module")
-def thompson_gamma_without_info(poisson_env) -> mab_algos.ThompsonSampling:
-    config = {"prior": PriorType.GAMMA}
+def thompson_gamma_discrete_without_info(poisson_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA_DISC}
     return mab_algos.ThompsonSampling(bandit_env=poisson_env, config=config)
 
 
 @pytest.fixture(scope="module")
-def thompson_gamma_with_info(poisson_env) -> mab_algos.ThompsonSampling:
-    config = {"prior": PriorType.GAMMA, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
+def thompson_gamma_discrete_with_info(poisson_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA_DISC, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
     return mab_algos.ThompsonSampling(bandit_env=poisson_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_gamma_continuous_without_info(exponential_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA_CONT}
+    return mab_algos.ThompsonSampling(bandit_env=exponential_env, config=config)
+
+
+@pytest.fixture(scope="module")
+def thompson_gamma_continuous_with_info(exponential_env) -> mab_algos.ThompsonSampling:
+    config = {"prior": PriorType.GAMMA_CONT, "alpha": [1.0, 2.0], "beta": [1.0, 2.0]}
+    return mab_algos.ThompsonSampling(bandit_env=exponential_env, config=config)
 
 
 @pytest.fixture(scope="module")

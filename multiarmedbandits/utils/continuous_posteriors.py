@@ -4,9 +4,56 @@ Collection of continuous posterior distributions.
 from typing import Any, Dict, List
 
 import numpy as np
-from scipy.stats import invgamma, norm
+from scipy.stats import gamma, invgamma, norm
 
 from multiarmedbandits.utils.abstract_posterior import AbstractPosterior
+
+
+class GammaContinuousPosterior(AbstractPosterior):
+    """
+    Class for the posterior of a prior gamma distribution (which is again gamma distributed).
+
+    Per default we choose the Bayes prior Gamma(1,1) for every arm.
+    It is mathematically equivalent to an exponential distribution.
+    """
+
+    def __init__(self, n_arms: int, config: Dict[str, Any]) -> None:
+        self.config = config
+        self.n_arms = n_arms
+        # Initialize the alpha parameter of the Gamma distribution for each arm
+        if "alpha" in self.config:
+            self.check_len_params(self.config["alpha"], self.n_arms)
+            self.alpha = np.array(self.config["alpha"])
+        else:
+            self.alpha = np.ones(self.n_arms)
+        # Initialize the beta parameter of the Gamma distribution for each arm
+        if "beta" in self.config:
+            self.check_len_params(self.config["beta"], self.n_arms)
+            self.beta = np.array(self.config["beta"])
+        else:
+            self.beta = np.ones(self.n_arms)
+
+    def sample(self) -> np.ndarray:
+        return gamma.rvs(a=self.alpha, scale=1 / self.beta)  # Samples from the Gamma distribution for each arm
+
+    def update(self, action: int, reward: int) -> None:
+        # Update the alpha and beta parameter for the selected arm, based on the received reward
+        self.alpha[action] += 1
+        self.beta[action] += reward
+
+    def reset(self) -> None:
+        # Reset the alpha parameter of the Beta distribution for each arm
+        if "alpha" in self.config:
+            self.check_len_params(self.config["alpha"], self.n_arms)
+            self.alpha = np.array(self.config["alpha"])
+        else:
+            self.alpha = np.ones(self.n_arms)
+        # Reset the beta parameter of the Beta distribution for each arm
+        if "beta" in self.config:
+            self.check_len_params(self.config["beta"], self.n_arms)
+            self.beta = np.array(self.config["beta"])
+        else:
+            self.beta = np.ones(self.n_arms)
 
 
 class NormalPosterior(AbstractPosterior):
@@ -44,7 +91,7 @@ class NormalPosterior(AbstractPosterior):
         # update mean using old mean and old scale
         self.mean[action] = (self.mean[action] * bandit_var + old_var * reward) / (bandit_var + old_var)
         # update scale using old scale
-        self.scale[action] = np.sqrt((bandit_var * old_var) / (bandit_var + old_var)) 
+        self.scale[action] = np.sqrt((bandit_var * old_var) / (bandit_var + old_var))
 
     def reset(self):
         # Reset the mean parameter of the Normal distribution for each arm
@@ -98,12 +145,12 @@ class NIGPosterior(AbstractPosterior):
         # sample variance from an inverse gamma distribution with parameters alpha and beta
         variances = invgamma.rvs(a=self.alpha, scale=self.beta)
         # sample from a normal distribution N(mean, variance/lambda_p)
-        return norm.rvs(loc=self.mean, scale=np.sqrt(variances/self.lambda_p))
+        return norm.rvs(loc=self.mean, scale=np.sqrt(variances / self.lambda_p))
 
     def update(self, action: int, reward: int) -> None:
         # Update the parameters of the NIG distribution for the selected arm, based on the received reward
         # update beta using old lambda_p and old mean
-        self.beta[action] = self.beta[action] + 0.5 * ((self.mean[action] - reward)**2) / (self.lambda_p[action] + 1)
+        self.beta[action] = self.beta[action] + 0.5 * ((self.mean[action] - reward) ** 2) / (self.lambda_p[action] + 1)
         # update mean using old lambda_p
         self.mean[action] = (self.mean[action] + self.lambda_p[action] * reward) / (self.lambda_p[action] + 1)
         # update lambda

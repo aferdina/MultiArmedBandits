@@ -58,7 +58,7 @@ class BetaPosterior(AbstractPosterior):
             self.beta = np.ones(self.n_arms)
 
 
-class GammaPosterior(AbstractPosterior):
+class GammaDiscretePosterior(AbstractPosterior):
     """
     Class for the posterior of a prior gamma distribution (which is again gamma distributed).
 

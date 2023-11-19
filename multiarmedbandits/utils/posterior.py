@@ -5,8 +5,8 @@ from typing import Any, Dict
 from strenum import StrEnum
 
 from multiarmedbandits.environments import ArmDistTypes, BaseBanditEnv
-from multiarmedbandits.utils.continuous_posteriors import NIGPosterior, NormalPosterior
-from multiarmedbandits.utils.discrete_posteriors import BetaPosterior, GammaPosterior
+from multiarmedbandits.utils.continuous_posteriors import GammaContinuousPosterior, NIGPosterior, NormalPosterior
+from multiarmedbandits.utils.discrete_posteriors import BetaPosterior, GammaDiscretePosterior
 
 
 class PriorType(StrEnum):
@@ -19,7 +19,8 @@ class PriorType(StrEnum):
     """
 
     BETA = "beta"
-    GAMMA = "gamma"
+    GAMMA_DISC = "gamma_disc"
+    GAMMA_CONT = "gamma_cont"
     NORMAL = "normal"
     NIG = "normal-inverse-gamma"
 
@@ -42,9 +43,12 @@ class PosteriorFactory:
         if prior == PriorType.BETA:
             assert self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI, "Bandit is not a Bernoulli bandit."
             return BetaPosterior(self.n_arms, config=config)
-        if prior == PriorType.GAMMA:
+        if prior == PriorType.GAMMA_DISC:
             assert self.bandit_parameters.dist_type == ArmDistTypes.POISSON, "Bandit is not a Poisson bandit."
-            return GammaPosterior(self.n_arms, config=config)
+            return GammaDiscretePosterior(self.n_arms, config=config)
+        if prior == PriorType.GAMMA_CONT:
+            assert self.bandit_parameters.dist_type == ArmDistTypes.EXPONENTIAL, "Bandit is not an Exponential bandit."
+            return GammaContinuousPosterior(self.n_arms, config=config)
         if prior == PriorType.NORMAL:
             assert self.bandit_parameters.dist_type == ArmDistTypes.GAUSSIAN, "Bandit is not a Gaussian bandit."
             bandit_scale = self.bandit_parameters.scale_parameter

@@ -560,9 +560,7 @@ def test_gradient_bandit_constant(env: BaseBanditEnv, algo: mab_algo.GradientBan
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_empty")),
         (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_beta")),
         (pytest.lazy_fixture("gaussian_env"), pytest.lazy_fixture("config_gamma_discrete")),
-        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_gamma_continuous")),
         (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_normal")),
-        (pytest.lazy_fixture("bernoulli_env"), pytest.lazy_fixture("config_nig")),
     ],
 )
 def test_thompson_wrong_prior(env: BaseBanditEnv, config: Dict[str, Any]) -> None:
@@ -866,4 +864,3 @@ def test_thompson_nig(env: BaseBanditEnv, algo: mab_algo.ThompsonSampling) -> No
     assert algo.posterior.lambda_p[np.abs(action - 1)] == init_lambda[np.abs(action - 1)]
     assert algo.posterior.alpha[np.abs(action - 1)] == init_alpha[np.abs(action - 1)]
     assert algo.posterior.beta[np.abs(action - 1)] == init_beta[np.abs(action - 1)]
-

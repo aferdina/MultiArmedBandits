@@ -13,7 +13,8 @@ class PriorType(StrEnum):
     """
     Specify different types of prior distributions:
         - the beta distribution is conjugate to the bernoulli likelihood
-        - the gamma distribution is conjugate to the poisson likelihood
+        - the gamma distribution is conjugate to the poisson likelihood (gamma_disc)
+        - the gamma distribution is conjugate to the exponential likelihood (gamma_cont)
         - the normal distribution is conjugate to a normal distribution with known variance
         - the normal-inverse-gamma is conjugate to a normal distribution with unknown variance
     """
@@ -41,20 +42,22 @@ class PosteriorFactory:
         assert "prior" in config, "You have to provide a prior."
         prior = config["prior"]
         if prior == PriorType.BETA:
-            assert self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI, "Bandit is not a Bernoulli bandit."
+            assert (self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI) or (
+                self.bandit_parameters.dist_type == ArmDistTypes.POISSON
+            ), "Bandit does not have discrete reward."
             return BetaPosterior(self.n_arms, config=config)
         if prior == PriorType.GAMMA_DISC:
-            assert self.bandit_parameters.dist_type == ArmDistTypes.POISSON, "Bandit is not a Poisson bandit."
+            assert (self.bandit_parameters.dist_type == ArmDistTypes.BERNOULLI) or (
+                self.bandit_parameters.dist_type == ArmDistTypes.POISSON
+            ), "Bandit does not have discrete reward."
             return GammaDiscretePosterior(self.n_arms, config=config)
         if prior == PriorType.GAMMA_CONT:
-            assert self.bandit_parameters.dist_type == ArmDistTypes.EXPONENTIAL, "Bandit is not an Exponential bandit."
             return GammaContinuousPosterior(self.n_arms, config=config)
         if prior == PriorType.NORMAL:
             assert self.bandit_parameters.dist_type == ArmDistTypes.GAUSSIAN, "Bandit is not a Gaussian bandit."
             bandit_scale = self.bandit_parameters.scale_parameter
             return NormalPosterior(n_arms=self.n_arms, config=config, bandit_scale=bandit_scale)
         if prior == PriorType.NIG:
-            assert self.bandit_parameters.dist_type == ArmDistTypes.GAUSSIAN, "Bandit is not a Gaussian bandit."
             return NIGPosterior(n_arms=self.n_arms, config=config)
         else:
             raise AssertionError("Provided prior is not known.")
